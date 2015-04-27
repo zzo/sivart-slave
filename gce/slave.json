@@ -1,0 +1,59 @@
+{
+  "disks": [
+    {
+      "type": "PERSISTENT",
+      "boot": true,
+      "mode": "READ_WRITE",
+      "deviceName": "slave-1",
+      "autoDelete": true,
+      "initializeParams": {
+        "sourceImage": "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/backports-debian-7-wheezy-v20150325",
+        "diskType": "https://www.googleapis.com/compute/v1/projects/focal-inquiry-92622/zones/us-central1-a/diskTypes/pd-standard"
+      }
+    }
+  ],
+  "networkInterfaces": [
+    {
+      "network": "https://www.googleapis.com/compute/v1/projects/focal-inquiry-92622/global/networks/default",
+      "accessConfigs": [
+        {
+          "name": "External NAT",
+          "type": "ONE_TO_ONE_NAT"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "items": [
+      {
+        "key": "startup-script-url",
+        "value": "https://raw.githubusercontent.com/zzo/sivart/master/gce/slave/startup.sh"
+      }
+    ]
+  },
+  "tags": {
+    "items": []
+  },
+  "zone": "https://www.googleapis.com/compute/v1/projects/focal-inquiry-92622/zones/us-central1-a",
+  "canIpForward": false,
+  "scheduling": {
+    "preemptible": false,
+    "automaticRestart": true,
+    "onHostMaintenance": "MIGRATE"
+  },
+  "name": "slave-1",
+  "machineType": "https://www.googleapis.com/compute/v1/projects/focal-inquiry-92622/zones/us-central1-a/machineTypes/f1-micro",
+  "serviceAccounts": [
+    {
+      "email": "default",
+      "scopes": [
+        "https://www.googleapis.com/auth/userinfo.email",
+        "https://www.googleapis.com/auth/devstorage.full_control",
+        "https://www.googleapis.com/auth/taskqueue",
+        "https://www.googleapis.com/auth/datastore",
+        "https://www.googleapis.com/auth/logging.write",
+        "https://www.googleapis.com/auth/cloud-platform"
+      ]
+    }
+  ]
+}
