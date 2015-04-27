@@ -1,6 +1,7 @@
 #! /bin/bash
 apt-get update
-apt-get install -y git npm libwww-perl xvfb
+curl -sL https://deb.nodesource.com/setup | sudo bash -
+apt-get install -y git npm libwww-perl xvfb build-essential
 git clone https://github.com/zzo/sivart-slave
 cd sivart-slave
 npm install

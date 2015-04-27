@@ -5,7 +5,7 @@ var slave_num = process.argv[2] || 1;
 var instanceName = 'slave-' + slave_num;
 
 var sivart_slave = new Ins(projectId, 'us-central1-a', instanceName);
-var data = JSON.parse(fs.readSync('slave.json'));
+var data = JSON.parse(fs.readFileSync('slave.json'));
 data.name = instanceName;
 data.disks[0].deviceName = instanceName;
 
