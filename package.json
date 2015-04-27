@@ -1,0 +1,19 @@
+{
+  "name": "sivart-slave",
+  "version": "1.0.0",
+  "description": "github runner",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zzo/sivart-slave.git"
+  },
+  "dependencies": {
+    "gcloud": "^0.13.2",
+    "googleapis": "^2.0.2",
+    "nodegit": "^0.3.3",
+    "sivart-GCE": "zzo/sivart-GCE"
+  },
+  "license": "Apache-2.0",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
