@@ -27,7 +27,7 @@
     "items": [
       {
         "key": "startup-script-url",
-        "value": "https://raw.githubusercontent.com/zzo/sivart/master/gce/slave/startup.sh"
+        "value": "https://raw.githubusercontent.com/zzo/sivart-slave/master/gce/startup.sh"
       }
     ]
   },
