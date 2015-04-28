@@ -1,9 +1,9 @@
 var fs = require('fs');
 
-function CreateScript(repoName, cloneURL, yamlURL) {
-  this.repoName = repoName;
-  this.cloneURL = cloneURL;
-  this.yamlURL = yamlURL;
+function CreateScript(args) {
+  this.repoName = args.repoName;
+  this.cloneURL = args.cloneURL;
+  this.yamlURL = args.yamlURL;
 }
 
 CreateScript.prototype.getYML = function(cb) {
@@ -31,7 +31,12 @@ CreateScript.prototype.getYML = function(cb) {
 CreateScript.prototype.addLines = function(section, newLines, existingLines) {
   existingLines.push('echo "------ START ' + section + ' ----------------"');
   if (newLines) {
-    existingLines = existingLines.concat(newLines);
+    newLines.forEach(function(command) {
+      existingLines.push('echo "--COMMAND START: ' + command + '"');
+      existingLines.push(command);
+      existingLines.push('echo "--COMMAND END: ' + command + '"');
+    });
+//    existingLines = existingLines.concat(newLines);
   }
   existingLines.push('echo "------ END ' + section + ' ----------------"');
   return existingLines;
@@ -75,7 +80,7 @@ CreateScript.prototype.createScripts = function(cb) {
     } else if (yml.env.matrix) {
       var i = 0;
       yml.env.matrix.forEach(function(matrix) {
-        var lines = me.addLines('Matrix', matrix, []);
+        var lines = me.addLines('Matrix', [matrix], []);
         scripts[i++] = me.addGlobals(lines, yml);
       });
     } else {

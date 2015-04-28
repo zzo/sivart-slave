@@ -16,6 +16,7 @@ apt-get install -y git xvfb build-essential unzip google-chrome-stable libssl-de
 # Start Xvfb ghetto-style
 ###
 /usr/bin/Xvfb :99 -screen 0 1280x1024x24 &
+touch /etc/init.d/xvfb ## Fake out travis scripts
 
 ###
 # DARTIUM fix: https://code.google.com/p/dart/issues/detail?id=12325

@@ -42,7 +42,7 @@
     "onHostMaintenance": "MIGRATE"
   },
   "name": "slave-1",
-  "machineType": "https://www.googleapis.com/compute/v1/projects/focal-inquiry-92622/zones/us-central1-a/machineTypes/n1-highcpu-8",
+  "machineType": "https://www.googleapis.com/compute/v1/projects/focal-inquiry-92622/zones/us-central1-a/machineTypes/n1-highmem-4",
   "serviceAccounts": [
     {
       "email": "default",
