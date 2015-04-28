@@ -60,8 +60,8 @@ CreateScript.prototype.addGlobals = function(lines, yml) {
   lines = this.addLines('GIT', [
     // TODO(trostler) fix this up if testing a PR
     printf('git clone --depth=50 --branch=%s %s', this.branch, this.cloneURL),
-    printf('cd %s', this.repoName)
-    printf('git checkout -qf %s', this.commit);
+    printf('cd %s', this.repoName),
+    printf('git checkout -qf %s', this.commit)
   ], lines);
 
   // NVM
