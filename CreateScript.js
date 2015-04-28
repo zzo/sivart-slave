@@ -1,5 +1,6 @@
 var fs = require('fs');
-var template = fs.readFileSync('user-script.sh.template', 'utf8');
+var path = require('path');
+var template = fs.readFileSync(path.join(__dirname, 'user-script.sh.template'), 'utf8');
 var printf = require('util').format;
 
 function getTemplateLines() {
@@ -120,7 +121,7 @@ CreateScript.prototype.getScripts = function(cb) {
     } else {
       var done = [];
       scripts.forEach(function(script) {
-        var template = fs.readFileSync('startup.sh.template', 'utf8');
+        var template = fs.readFileSync(path.join(__dirname, 'startup.sh.template'), 'utf8');
         template = template.replace('USER_SCRIPT', script.join("\n"));
         done.push(template);
       });
