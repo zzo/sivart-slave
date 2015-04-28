@@ -1,6 +1,14 @@
 SIVART_BASE_LOG_DIR=/tmp/sivart/logs
 mkdir -p $SIVART_BASE_LOG_DIR
 
+function saveLogs() {
+  cd
+  git clone https://github.com/zzo/sivart-slave
+  cd sivart-slave
+  npm install
+  node saveLogs.js
+}
+
 function runCommand() {
   timestamp=`date +"%s.%N"`
   start=`date +"%s"`
@@ -14,15 +22,9 @@ function runCommand() {
   if [[ $keep -gt 0 ]] 
     then
     echo "--SIVART FAILED: $1: $keep: $len seconds" | tee -a $logf
+    saveLogs
     exit $keep
   else 
     echo "--SIVART SUCCEEDED: $1: $len seconds" | tee -a $logf
   fi
 } 
-
-function saveLogs() {
-  cd
-  npm install sivart-slave
-  cd sivart-slave
-  node saveLogs.js
-}
