@@ -19,3 +19,10 @@ function runCommand() {
     echo "--SIVART SUCCEEDED: $1: $len seconds" | tee -a $logf
   fi
 } 
+
+function saveLogs() {
+  cd
+  npm install sivart-slave
+  cd sivart-slave
+  node saveLogs.js
+}
