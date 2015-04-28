@@ -1,0 +1,45 @@
+#! /bin/bash
+
+###
+# Chrome
+###
+wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
+####
+
+apt-get update
+
+### or -beta or -unstable (chrome)
+apt-get install -y git xvfb build-essential unzip google-chrome-stable libssl-dev default-jre
+
+###
+# Start Xvfb ghetto-style
+###
+/usr/bin/Xvfb :99 -screen 0 1280x1024x24 &
+
+###
+# DARTIUM fix: https://code.google.com/p/dart/issues/detail?id=12325
+#   Dartium needs libudev.0
+###
+wget http://launchpadlibrarian.net/119461136/libudev0_175-0ubuntu13_amd64.deb
+dpkg -i libudev0_175-0ubuntu13_amd64.deb
+apt-get install -f
+
+### TODO(trostler): snapshot/create image this config above?
+
+read -d '' SCRIPT <<'EOF'
+USER_SCRIPT
+EOF
+
+echo "$SCRIPT" > /tmp/user-script
+
+###
+# Dummy user
+###
+adduser --disabled-password --disabled-login --gecos "" sivart
+
+echo '----------- START USER SCRIPT ---------------'
+su -l sivart -c "/bin/bash /tmp/user-script"
+#export HOME=/root
+#/bin/bash /tmp/user-script
+echo '----------- END USER SCRIPT ---------------'

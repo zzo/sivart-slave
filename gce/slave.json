@@ -7,7 +7,7 @@
       "deviceName": "slave-1",
       "autoDelete": true,
       "initializeParams": {
-        "sourceImage": "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/backports-debian-7-wheezy-v20150325",
+        "sourceImage": "https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1404-trusty-v20150316",
         "diskType": "https://www.googleapis.com/compute/v1/projects/focal-inquiry-92622/zones/us-central1-a/diskTypes/pd-standard"
       }
     }
@@ -26,8 +26,8 @@
   "metadata": {
     "items": [
       {
-        "key": "startup-script-url",
-        "value": "https://raw.githubusercontent.com/zzo/sivart-slave/master/gce/startup.sh"
+        "key": "startup-script",
+        "value": ""
       }
     ]
   },
@@ -42,7 +42,7 @@
     "onHostMaintenance": "MIGRATE"
   },
   "name": "slave-1",
-  "machineType": "https://www.googleapis.com/compute/v1/projects/focal-inquiry-92622/zones/us-central1-a/machineTypes/f1-micro",
+  "machineType": "https://www.googleapis.com/compute/v1/projects/focal-inquiry-92622/zones/us-central1-a/machineTypes/n1-highcpu-8",
   "serviceAccounts": [
     {
       "email": "default",

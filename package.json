@@ -9,6 +9,7 @@
   "dependencies": {
     "gcloud": "^0.13.2",
     "googleapis": "^2.0.2",
+    "js-yaml": "^3.3.0",
     "nodegit": "^0.3.3",
     "sivart-GCE": "zzo/sivart-GCE"
   },
