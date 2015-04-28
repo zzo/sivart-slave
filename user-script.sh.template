@@ -1,0 +1,21 @@
+SIVART_BASE_LOG_DIR=/tmp/sivart/logs
+mkdir -p $SIVART_BASE_LOG_DIR
+
+function runCommand() {
+  timestamp=`date +"%s.%N"`
+  start=`date +"%s"`
+  logf=$SIVART_BASE_LOG_DIR/$timestamp
+  echo "--SIVART START: $1: $logf: `date`" | tee $logf
+  eval $1 >> $logf 2>&1
+  end=`date +"%s"`
+#  cat $logf  # Drop output here when done or keep this file clean?
+  keep=$?
+  len=$((end - start))
+  if [[ $keep -gt 0 ]] 
+    then
+    echo "--SIVART FAILED: $1: $keep: $len seconds" | tee -a $logf
+    exit $keep
+  else 
+    echo "--SIVART SUCCEEDED: $1: $len seconds" | tee -a $logf
+  fi
+} 

@@ -1,4 +1,10 @@
 var fs = require('fs');
+var template = fs.readFileSync('user-script.sh.template', 'utf8');
+var printf = require('util').format;
+
+function getTemplateLines() {
+  return template.split("\n");
+}
 
 function CreateScript(args) {
   this.repoName = args.repoName;
@@ -29,34 +35,42 @@ CreateScript.prototype.getYML = function(cb) {
 };
 
 CreateScript.prototype.addLines = function(section, newLines, existingLines) {
-  existingLines.push('echo "------ START ' + section + ' ----------------"');
+  existingLines.push(printf('echo "------ START %s ----------------"', section));
   if (newLines) {
     newLines.forEach(function(command) {
-      existingLines.push('echo "--COMMAND START: ' + command + '"');
-      existingLines.push(command);
-      existingLines.push('echo "--COMMAND END: ' + command + '"');
+      // This is fun!  We need _3_ backslashes to make it thru to /tmp/user-script so
+      //  there are 12 here - will end up as 6 in the global startup script and finally
+      //  3 in the final user-script.
+      //  THIS IS ONLY FOR EXPORTING env vars to a file ($TSDRC -> .tsdrc)
+      if (section == 'Globals' && command.match('TSDRC')) {
+        command = command.replace(/"/g, '\\\\\\\\\\\\"');
+      }
+      existingLines.push(printf("runCommand '%s'", command));
     });
-//    existingLines = existingLines.concat(newLines);
   }
-  existingLines.push('echo "------ END ' + section + ' ----------------"');
+  existingLines.push(printf('echo "------ END %s ----------------"', section));
   return existingLines;
 };
 
 CreateScript.prototype.addGlobals = function(lines, yml) {
+
+  // Git clone
+  lines = this.addLines('GIT', [
+    printf('git clone %s', this.cloneURL),
+    printf('cd %s', this.repoName)
+  ], lines);
+
   // NVM
   lines = this.addLines('NVM', [
     'curl https://raw.githubusercontent.com/creationix/nvm/v0.25.0/install.sh | sh',
     'source ~/.nvm/nvm.sh',
-    'nvm install ' + yml.node_js[0], // TODO(trostler): handle multiple versions
+    printf('nvm install %s', yml.node_js[0]), // TODO(trostler): handle multiple versions
     'node -v'
     ], lines);
 
   // Global env variables
   if (yml.env && yml.env.global) {
-    var globals = yml.env.global.map(function(glob) { return 'export ' + glob });
-    console.log("GLOBALS:");
-    console.log(globals);
-    console.log(yml.env.global);
+    var globals = yml.env.global.map(function(glob) { return printf('export %s', glob) });
     lines = this.addLines('Globals', globals, lines);
   }
 
@@ -80,11 +94,12 @@ CreateScript.prototype.createScripts = function(cb) {
     } else if (yml.env.matrix) {
       var i = 0;
       yml.env.matrix.forEach(function(matrix) {
-        var lines = me.addLines('Matrix', [matrix], []);
+        // start with a new templateLines each time
+        var lines = me.addLines('Matrix', [matrix], getTemplateLines());
         scripts[i++] = me.addGlobals(lines, yml);
       });
     } else {
-      scripts[0] = me.addGlobals([], yml);
+      scripts[0] = me.addGlobals(getTemplateLines(), yml);
     }
     cb(null, scripts);
   });
@@ -98,7 +113,6 @@ CreateScript.prototype.getScripts = function(cb) {
     } else {
       var done = [];
       scripts.forEach(function(script) {
-        script.unshift("git clone " + me.cloneURL, "cd " + me.repoName);
         var template = fs.readFileSync('startup.sh.template', 'utf8');
         template = template.replace('USER_SCRIPT', script.join("\n"));
         done.push(template);

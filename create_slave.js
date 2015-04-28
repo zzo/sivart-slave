@@ -25,8 +25,6 @@ createScript.getScripts(function(err, scripts) {
   if (err) {
     console.log(err);
   } else {
-//    var script = scripts[0];
- //   console.log(script);
     scripts.forEach(function(script) {
       var hash = crypto.createHash('md5').update(script).digest("hex");
       var instanceName = 'slave-' + hash;
