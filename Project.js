@@ -31,7 +31,7 @@ function Project(eventName, args) {
   }
 
   this.createScript = new CreateScript(this);
-  this.slaveFile  = args.slaveJSON || 'gce/slave.json';
+  this.slaveFile  = args.slaveJSON || path.join(__dirname, 'gce/slave.json');
   this.zone = args.zone || 'us-central1-a';
   this.projectId = args.projectId || projectId;
   this.slaves = {};
@@ -79,7 +79,7 @@ Project.prototype.createAllSlaves = function(cb) {
       var errors = [];
       var responses = [];
       scripts.forEach(function(script) {
-        me.createSlave(function(err, data) {
+        me.createSlave(script, function(err, data) {
           if (err) {
             errors.push(err);
           } else {
@@ -87,7 +87,7 @@ Project.prototype.createAllSlaves = function(cb) {
           }
           done++;
           if (done == scripts.length) {
-            cb(errors, reponses);
+            cb(errors, responses);
           }
         });
       });
