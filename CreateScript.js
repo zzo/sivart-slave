@@ -10,6 +10,8 @@ function CreateScript(args) {
   this.repoName = args.repoName;
   this.cloneURL = args.cloneURL;
   this.yamlURL = args.yamlURL;
+  this.commit = args.commit;
+  this.branch = args.branch;
 }
 
 CreateScript.prototype.getYML = function(cb) {
@@ -56,8 +58,10 @@ CreateScript.prototype.addGlobals = function(lines, yml) {
 
   // Git clone
   lines = this.addLines('GIT', [
-    printf('git clone %s', this.cloneURL),
+    // TODO(trostler) fix this up if testing a PR
+    printf('git clone --depth=50 --branch=%s %s', this.branch, this.cloneURL),
     printf('cd %s', this.repoName)
+    printf('git checkout -qf %s', this.commit);
   ], lines);
 
   // NVM
@@ -83,6 +87,7 @@ CreateScript.prototype.addGlobals = function(lines, yml) {
   lines = this.addLines('Script', yml.script, lines);
   lines = this.addLines('After Script', yml.after_script, lines);
 
+  lines = this.addLines('Git Request', [printf("export GIT_REQUEST='%s'", JSON.stringify(this.metadata))], lines);
   lines = this.addLines('Save Logs', ['saveLogs'], lines);
   return lines;
 }

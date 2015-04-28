@@ -1,8 +1,10 @@
-var Ins = require('sivart-GCE/Instance');
+var Instance = require('sivart-GCE/Instance');
 var projectId = 'focal-inquiry-92622';
 var fs = require('fs');
 var CreateScript = require('./CreateScript');
 var crypto = require('crypto');
+var path = require('path');
+var printf = require('util').format;
 
 var repos = {
   angular2: {
@@ -17,8 +19,18 @@ var repos = {
   }
 };
 
-function Project(args) {
-  this.createScript = new CreateScript(repos[args.project]);
+function Project(eventName, args) {
+  // TODO(trostler): handle other events (like PR)
+  if (eventName == 'push') {
+    this.branch = path.basename(args.ref);
+    this.cloneURL = args.repository.clone_url;
+    this.repoName = args.repository.full_name;
+    this.yamlURL = printf('https://raw.githubusercontent.com/%s/%s/.travis.yml', this.repoName,  this.branch);
+    this.commit = args.after;
+    this.metadata = { eventName: eventName, message: args };
+  }
+
+  this.createScript = new CreateScript(this);
   this.slaveFile  = args.slaveJSON || 'gce/slave.json';
   this.zone = args.zone || 'us-central1-a';
   this.projectId = args.projectId || projectId;
@@ -46,7 +58,7 @@ Project.prototype.createSlave = function(script, cb) {
   data.disks[0].deviceName = instanceName;
   data.metadata.items[0].value = script.replace('$', '\\$');
   data.metadata.items[0].value = script;
-  var sivart_slave = new Ins(projectId, this.zone, instanceName);
+  var sivart_slave = new Instance(projectId, this.zone, instanceName);
   sivart_slave.create({ instance: data }, function(err, resp) {
     if (err) {
       cb('ERROR creating instance:' + error);
@@ -59,12 +71,24 @@ Project.prototype.createSlave = function(script, cb) {
 
 Project.prototype.createAllSlaves = function(cb) {
   var me = this;
-  createScript.getScripts(function(err, scripts) {
+  this.createScripts(function(err, scripts) {
     if (err) {
       cb(err);
     } else {
+      var done = 0;
+      var errors = [];
+      var responses = [];
       scripts.forEach(function(script) {
         me.createSlave(function(err, data) {
+          if (err) {
+            errors.push(err);
+          } else {
+            responses.push(data);
+          }
+          done++;
+          if (done == scripts.length) {
+            cb(errors, reponses);
+          }
         });
       });
     }
