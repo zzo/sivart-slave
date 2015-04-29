@@ -8,6 +8,7 @@ var repos = {
       full_name: 'angular/angular', 
       clone_url: 'https://github.com/angular/angular.git' 
     },
+    keepVM: 1  // for debugging
   },
   angular: {
     ref: 'master',

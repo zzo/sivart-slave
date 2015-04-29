@@ -27,6 +27,7 @@ var repos = {
 function Project(eventName, args) {
   // TODO(trostler): handle other events (like PR)
   this.eventName = eventName;
+  this.keepVM = args.keepVM
   this.github = args;
   if (eventName == 'push') {
     this.branch = path.basename(args.ref);
@@ -112,10 +113,26 @@ Project.prototype.initialSave = function(errors, instances, cb) {
   var safeName = this.repoName.replace(/\//g, '.');
   var keyKind = this.eventName;
   var key = dataset.key({ namespace: safeName, path: [ keyKind ] });
+  var me = this;
   dataset.save({ key: key, data: { errors: errors, instances: instances, github: this.github }}, function(err, r) {
     if (err) {
       cb(err);
     } else {
+//      instances.forEach(function(instance) {
+      for (var instance in instances) {
+        // set metata key
+        var sivart_slave = new Instance(projectId, this.me, instance);
+        var data = { key: 'key', value: key };
+        sivart_slave.setMetaData([data], function(err, resp) {
+          if (err) {
+            console.log('error setting meta data: ' + err);
+            errors.push(err);
+          } else {
+            console.log('set meta data: ' + resp);
+          }
+        });
+      }
+//      });
       cb(null, key);
     }
   });

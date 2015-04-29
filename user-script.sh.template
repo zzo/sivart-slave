@@ -1,5 +1,17 @@
 SIVART_BASE_LOG_DIR=/tmp/sivart/logs
 mkdir -p $SIVART_BASE_LOG_DIR
+HOSTNAME=`hostname`
+SIVART_NODE=0.10
+USER_NODE=0.10  # will get overwritten
+SIVART_SLAVE=/tmp/sivart_slave
+
+function updateState() {
+  pushd $SIVART_SLAVE
+  nvm use $SIVART_NODE
+  node updateState.js $1
+  nvm use $USER_NODE
+  popd
+}
 
 function saveLogs() {
   cd
@@ -12,9 +24,8 @@ function saveLogs() {
 function deleteInstance() {
   # assumes you've called saveLogs first!
   cd ~/sivart-slave
-  node deleteInstance.js `hostname`
+  node deleteInstance.js $HOSTNAME
 }
-
 
 function runCommand() {
   timestamp=`date +"%s.%N"`
@@ -40,3 +51,12 @@ function runCommand() {
     echo "--SIVART SUCCEEDED: $1: $len seconds" | tee -a $logf
   fi
 } 
+
+curl https://raw.githubusercontent.com/creationix/nvm/v0.25.0/install.sh | sh
+source ~/.nvm/nvm.sh
+nvm install $SIVART_NODE
+git clone https://github.com/zzo/sivart-slave $SIVART_SLAVE
+pushd $SIVART_SLAVE
+npm install
+popd
+
