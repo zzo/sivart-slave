@@ -46,7 +46,7 @@ CreateScript.prototype.addLines = function(section, newLines, existingLines) {
       //  there are 12 here - will end up as 6 in the global startup script and finally
       //  3 in the final user-script.
       //  THIS IS ONLY FOR EXPORTING env vars to a file ($TSDRC -> .tsdrc)
-      if (section == 'Globals' && command.match('TSDRC')) {
+      if (command.match('github.request') || command.match('TSDRC')) {
         command = command.replace(/"/g, '\\\\\\\\\\\\"');
       }
       existingLines.push(printf("runCommand '%s'", command));
@@ -55,6 +55,18 @@ CreateScript.prototype.addLines = function(section, newLines, existingLines) {
   existingLines.push(printf('echo "------ END %s ----------------"', section));
   return existingLines;
 };
+
+CreateScript.prototype.addNodeJS = function(lines, nodejs) {
+  // NVM
+  lines = this.addLines('NVM', [
+    'curl https://raw.githubusercontent.com/creationix/nvm/v0.25.0/install.sh | sh',
+    'source ~/.nvm/nvm.sh',
+    printf('nvm install %s', nodejs),
+    'node -v > $SIVART_BASE_LOG_DIR/nodejs.version',
+    'echo "Using NodeJS version `node -v`"'
+    ], lines);
+  return lines;
+}
 
 CreateScript.prototype.addGlobals = function(lines, yml) {
 
@@ -65,14 +77,6 @@ CreateScript.prototype.addGlobals = function(lines, yml) {
     printf('cd %s', this.repoName),
     printf('git checkout -qf %s', this.commit)
   ], lines);
-
-  // NVM
-  lines = this.addLines('NVM', [
-    'curl https://raw.githubusercontent.com/creationix/nvm/v0.25.0/install.sh | sh',
-    'source ~/.nvm/nvm.sh',
-    printf('nvm install %s', yml.node_js[0]), // TODO(trostler): handle multiple versions
-    'node -v'
-    ], lines);
 
   // Global env variables
   if (yml.env && yml.env.global) {
@@ -89,7 +93,7 @@ CreateScript.prototype.addGlobals = function(lines, yml) {
   lines = this.addLines('Script', yml.script, lines);
   lines = this.addLines('After Script', yml.after_script, lines);
 
-  lines = this.addLines('Git Request', [printf("export GIT_REQUEST='%s'", JSON.stringify(this.metadata))], lines);
+  lines = this.addLines('Git Request', [printf("echo %s > $SIVART_BASE_LOG_DIR/github.request", JSON.stringify(this.metadata))], lines);
   lines = this.addLines('Save Logs', ['saveLogs'], lines);
   return lines;
 }
@@ -102,10 +106,16 @@ CreateScript.prototype.createScripts = function(cb) {
       cb(err);
     } else if (yml.env.matrix) {
       var i = 0;
-      yml.env.matrix.forEach(function(matrix) {
-        // start with a new templateLines each time
-        var lines = me.addLines('Matrix', [matrix], getTemplateLines());
-        scripts[i++] = me.addGlobals(lines, yml);
+      yml.node_js.forEach(function(node_js) {
+        yml.env.matrix.forEach(function(matrix) {
+          // start with a new templateLines each time
+          var lines = me.addLines('Matrix', [
+            matrix,
+            printf("echo %s > $SIVART_BASE_LOG_DIR/matrix", matrix)
+            ], getTemplateLines());
+          var lines = me.addNodeJS(lines, node_js);
+          scripts[i++] = me.addGlobals(lines, yml);
+        });
       });
     } else {
       scripts[0] = me.addGlobals(getTemplateLines(), yml);

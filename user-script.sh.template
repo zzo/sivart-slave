@@ -6,7 +6,7 @@ function saveLogs() {
   git clone https://github.com/zzo/sivart-slave
   cd sivart-slave
   npm install
-  node saveLogs.js
+  node saveLogs.js $SIVART_BASE_LOG_DIR
 }
 
 function runCommand() {
