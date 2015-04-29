@@ -108,7 +108,7 @@ Project.prototype.createAllSlaves = function(cb) {
 };
 
 Project.prototype.initialSave = function(errors, instances, cb) {
-  var namespace = instances[0].metadata.name.replace(/\//g, '.');
+  var safeName = this.repoName.replace(/\//g, '.');
   var keyKind = this.eventName;
   var key = dataset.key({ namespace: safeName, path: [ keyKind ] });
   dataset.save({ key: key, data: { errors: errors, instances: instances, github: this.github }}, function(err, r) {

@@ -24,5 +24,5 @@ var project = new Project('push', repos[which]);
 project.createAllSlaves(function(err, slaves, dbkey) {
   console.log(err);
   console.log(slaves);
-  console.log(key);
+  console.log(dbkey);
 });
