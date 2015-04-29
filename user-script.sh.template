@@ -1,22 +1,11 @@
 SIVART_BASE_LOG_DIR=/tmp/sivart/logs
 mkdir -p $SIVART_BASE_LOG_DIR
-HOSTNAME=`hostname`
-SIVART_NODE=0.10
-USER_NODE=0.10  # will get overwritten
-SIVART_SLAVE=/tmp/sivart_slave
-
-function updateState() {
-  pushd $SIVART_SLAVE
-  nvm use $SIVART_NODE
-  node updateState.js $1
-  nvm use $USER_NODE
-  popd
-}
+COMMANDS_ONLY=$SIVART_BASE_LOG_DIR/user-script.cmd
 
 function saveLogs() {
   cd
-  git clone https://github.com/zzo/sivart-slave
-  cd sivart-slave
+  git clone https://github.com/zzo/sivart-slave /tmp/sivart-slave
+  cd /tmp/sivart-slave
   npm install
   node saveLogs.js $SIVART_BASE_LOG_DIR
 }
@@ -24,22 +13,22 @@ function saveLogs() {
 function deleteInstance() {
   # assumes you've called saveLogs first!
   cd ~/sivart-slave
-  node deleteInstance.js $HOSTNAME
+  node deleteInstance.js
 }
 
 function runCommand() {
   timestamp=`date +"%s.%N"`
   start=`date +"%s"`
   logf=$SIVART_BASE_LOG_DIR/$timestamp
-  echo "--SIVART START: $1: $timestamp: `date`" | tee $logf
+  echo "--SIVART START: $1: $timestamp: `date`" | tee $logf $COMMANDS_ONLY
   eval $1 >> $logf 2>&1
   end=`date +"%s"`
-#  cat $logf  # Drop output here when done or keep this file clean?
+  cat $logf  # Drop output here when done or keep this file clean?
   keep=$?
   len=$((end - start))
   if [[ $keep -gt 0 ]] 
     then
-    echo "--SIVART FAILED: $1: $keep: $len seconds" | tee -a $logf
+    echo "--SIVART FAILED: $1: $keep: $len seconds" | tee -a $logf $COMMANDS_ONLY
     echo "$1" > $SIVART_BASE_LOG_DIR/failed
     echo "$timestamp" >> $SIVART_BASE_LOG_DIR/failed
     echo "$keep" >> $SIVART_BASE_LOG_DIR/failed
@@ -48,15 +37,6 @@ function runCommand() {
     saveLogs
     exit $keep
   else 
-    echo "--SIVART SUCCEEDED: $1: $len seconds" | tee -a $logf
+    echo "--SIVART SUCCEEDED: $1: $len seconds" | tee -a $logf $COMMANDS_ONLY
   fi
 } 
-
-curl https://raw.githubusercontent.com/creationix/nvm/v0.25.0/install.sh | sh
-source ~/.nvm/nvm.sh
-nvm install $SIVART_NODE
-git clone https://github.com/zzo/sivart-slave $SIVART_SLAVE
-pushd $SIVART_SLAVE
-npm install
-popd
-

@@ -41,7 +41,6 @@ CreateScript.prototype.getYML = function(cb) {
 };
 
 CreateScript.prototype.addLines = function(section, newLines, existingLines) {
-  existingLines.push(printf('updateState %s', section));
   existingLines.push(printf('echo "------ START %s ----------------"', section));
   if (newLines) {
     newLines.forEach(function(command) {
@@ -68,8 +67,8 @@ CreateScript.prototype.addLines = function(section, newLines, existingLines) {
 CreateScript.prototype.addNodeJS = function(lines, nodejs) {
   // NVM
   lines = this.addLines('NVM', [
-//    'curl https://raw.githubusercontent.com/creationix/nvm/v0.25.0/install.sh | sh',
-//    'source ~/.nvm/nvm.sh',
+    'curl https://raw.githubusercontent.com/creationix/nvm/v0.25.0/install.sh | sh',
+    'source ~/.nvm/nvm.sh',
     printf('export USER_NODE=%s', nodejs),
     printf('nvm install %s', nodejs),
     'node -v > $SIVART_BASE_LOG_DIR/nodejs.version',

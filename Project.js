@@ -118,21 +118,6 @@ Project.prototype.initialSave = function(errors, instances, cb) {
     if (err) {
       cb(err);
     } else {
-//      instances.forEach(function(instance) {
-      for (var instance in instances) {
-        // set metata key
-        var sivart_slave = new Instance(projectId, this.me, instance);
-        var data = { key: 'key', value: key };
-        sivart_slave.setMetaData([data], function(err, resp) {
-          if (err) {
-            console.log('error setting meta data: ' + err);
-            errors.push(err);
-          } else {
-            console.log('set meta data: ' + resp);
-          }
-        });
-      }
-//      });
       cb(null, key);
     }
   });
