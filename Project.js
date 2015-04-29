@@ -120,7 +120,7 @@ Project.prototype.initialSave = function(errors, instances, cb) {
       return '';
     else
       return v;
-  });
+  }));
 
   dataset.save({ key: key, data: { errors: errors, instances: instances, github: github }}, function(err, r) {
     if (err) {
@@ -128,7 +128,7 @@ Project.prototype.initialSave = function(errors, instances, cb) {
     } else {
       cb(null, key);
     }
-  }));
+  });
 };
 
 module.exports = Project;
