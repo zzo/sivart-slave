@@ -10,8 +10,9 @@ function saveLogs() {
 }
 
 function deleteInstance() {
+  # assumes you've called saveLogs first!
   cd ~/sivart-slave
-  node deleteInstance.js
+  node deleteInstance.js `hostname`
 }
 
 
