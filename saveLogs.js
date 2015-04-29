@@ -3,29 +3,41 @@ var path = require('path');
 var uuid = require('uuid');
 
 var projectId = 'focal-inquiry-92622';
-var gcloud = require('gcloud')({
-    projectId: projectId
-});
+var gcloud = require('gcloud');
 
 var dataset = gcloud.datastore.dataset({
-    projectId: projectId
-//    keyFilename: '/Users/trostler/Downloads/sivart-6ddd2fa23c3b.json'
+    projectId: projectId,
+    keyFilename: '/Users/trostler/Downloads/sivart-6ddd2fa23c3b.json'
 });
 var storage = gcloud.storage({
-    projectId: projectId
-//    keyFilename: '/Users/trostler/Downloads/sivart-6ddd2fa23c3b.json'
+    projectId: projectId,
+    keyFilename: '/Users/trostler/Downloads/sivart-6ddd2fa23c3b.json'
 });
 
 //Get metadata
 var logDir = process.argv[2];
 var metadata = JSON.parse(fs.readFileSync(path.join(logDir, 'metadata')));
+var safeName = metadata.name.replace(/\//g, '.');
 
 // Generate bucket name
 metadata.bucket = ['sivart', uuid.v1()].join('-');
 metadata.stored = new Date().getTime();
 
 // Store metadata
-var key = dataset.key({ namespace: 'sivart', path: [ metadata.name, metadata.branch ] });
+var key = dataset.key({ namespace: safeName, path: [ metadata.eventType ] });
+dataset.save({ key: key, data: { instances: [ 'a','b','c' ]  }}, function(err, r) {
+  if (err) {
+    console.log('eorror saving');
+    console.log(err);
+  } else {
+    console.log('resp');
+    console.log(r);
+    console.log('key');
+    console.log(key);
+  }
+});
+
+/*
 dataset.get(key, function(err, entity) {
   if (err) {
     console.log('Error getting entity');
@@ -46,7 +58,9 @@ dataset.get(key, function(err, entity) {
     });
   }
 });
+*/
 
+/*
 // Store files
 storage.createBucket(metadata.bucket, function(err, bucket) {
   if (err) {
@@ -63,3 +77,4 @@ storage.createBucket(metadata.bucket, function(err, bucket) {
   fs.createReadStream('/var/run/google.startup.script').pipe(bucket.file('google.startup.script').createWriteStream());
 })
 
+*/

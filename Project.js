@@ -5,6 +5,11 @@ var CreateScript = require('./CreateScript');
 var path = require('path');
 var printf = require('util').format;
 var uuid = require('uuid');
+var gcloud = require('gcloud');
+var dataset = gcloud.datastore.dataset({
+    projectId: projectId,
+    keyFilename: '/Users/trostler/Downloads/sivart-6ddd2fa23c3b.json'
+});
 
 var repos = {
   angular2: {
@@ -21,6 +26,8 @@ var repos = {
 
 function Project(eventName, args) {
   // TODO(trostler): handle other events (like PR)
+  this.eventName = eventName;
+  this.github = args;
   if (eventName == 'push') {
     this.branch = path.basename(args.ref);
     this.cloneURL = args.repository.clone_url;
@@ -87,10 +94,28 @@ Project.prototype.createAllSlaves = function(cb) {
           }
           done++;
           if (done == scripts.length) {
-            cb(errors, responses);
+            me.initialSave(errors, responses, function(err, key) {
+              if (err) {
+                errors.push(err);
+              } 
+              cb(errors, responses, key);
+            });
           }
         });
       });
+    }
+  });
+};
+
+Project.prototype.initialSave = function(errors, instances, cb) {
+  var namespace = instances[0].metadata.name.replace(/\//g, '.');
+  var keyKind = this.eventName;
+  var key = dataset.key({ namespace: safeName, path: [ keyKind ] });
+  dataset.save({ key: key, data: { errors: errors, instances: instances, github: this.github }}, function(err, r) {
+    if (err) {
+      cb(err);
+    } else {
+      cb(null, key);
     }
   });
 };

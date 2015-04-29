@@ -21,7 +21,8 @@ var repos = {
 
 var which = process.env[2] || 'angular2';
 var project = new Project('push', repos[which]);
-project.createAllSlaves(function(err, slaves) {
+project.createAllSlaves(function(err, slaves, dbkey) {
   console.log(err);
   console.log(slaves);
+  console.log(key);
 });
