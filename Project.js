@@ -2,9 +2,9 @@ var Instance = require('sivart-GCE/Instance');
 var projectId = 'focal-inquiry-92622';
 var fs = require('fs');
 var CreateScript = require('./CreateScript');
-var crypto = require('crypto');
 var path = require('path');
 var printf = require('util').format;
+var uuid = require('uuid');
 
 var repos = {
   angular2: {
@@ -51,8 +51,7 @@ Project.prototype.createScripts = function(cb) {
 
 Project.prototype.createSlave = function(script, cb) {
   var me = this;
-  var hash = crypto.createHash('md5').update(script.script).digest("hex");
-  var instanceName = 'slave-' + hash;
+  var instanceName = ['slave', uuid.v1()].join('-');
   var data = JSON.parse(fs.readFileSync(this.slaveFile));
   data.name = instanceName;
   data.disks[0].deviceName = instanceName;
