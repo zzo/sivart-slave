@@ -13,6 +13,7 @@ function CreateScript(args) {
   this.yamlURL = args.yamlURL;
   this.commit = args.commit;
   this.branch = args.branch;
+  this.metadata = args.metadata;
 }
 
 CreateScript.prototype.getYML = function(cb) {
@@ -60,7 +61,7 @@ CreateScript.prototype.addGlobals = function(lines, yml) {
   // Git clone
   lines = this.addLines('GIT', [
     // TODO(trostler) fix this up if testing a PR
-    printf('git clone --depth=50 --branch=%s %s', this.branch, this.cloneURL),
+    printf('git clone --depth=50 --branch=%s %s', this.branch, this.cloneURL, this.repoName),
     printf('cd %s', this.repoName),
     printf('git checkout -qf %s', this.commit)
   ], lines);
