@@ -11,19 +11,6 @@ var dataset = gcloud.datastore.dataset({
 //    keyFilename: '/Users/trostler/Downloads/sivart-6ddd2fa23c3b.json'
 });
 
-var repos = {
-  angular2: {
-    repoName: 'angular', 
-    cloneURL: 'https://github.com/angular/angular.git',
-    yamlURL: 'https://raw.githubusercontent.com/angular/angular/master/.travis.yml'
-  },
-  angular: {
-    repoName: 'angular.js', 
-    cloneURL: 'https://github.com/angular/angular.js.git',
-    yamlURL: 'https://raw.githubusercontent.com/angular/angular.js/master/.travis.yml'
-  }
-};
-
 function Project(eventName, args) {
   // TODO(trostler): handle other events (like PR)
   this.eventName = eventName;
@@ -94,6 +81,7 @@ Project.prototype.createAllSlaves = function(cb) {
           } else {
             responses[data] = script.metadata;
           }
+          // use promises :)
           done++;
           if (done == scripts.length) {
             me.initialSave(errors, responses, function(err, key) {
