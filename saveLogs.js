@@ -38,7 +38,7 @@ dataset.get(key, function(err, entity) {
       }
     });
   } else {
-    entity.data.runs.unshift(metadata);
+    entity.data.data.runs.unshift(metadata);
     dataset.save({ key: key, data: entity }, function(err) {
       if (err) {
         console.log('Error saving new entity');
@@ -62,3 +62,4 @@ storage.createBucket(metadata.bucket, function(err, bucket) {
   fs.createReadStream('/var/log/startupscript.log').pipe(bucket.file('startupscript.log').createWriteStream());
   fs.createReadStream('/var/run/google.startup.script').pipe(bucket.file('google.startup.script').createWriteStream());
 })
+

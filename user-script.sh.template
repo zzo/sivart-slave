@@ -9,6 +9,12 @@ function saveLogs() {
   node saveLogs.js $SIVART_BASE_LOG_DIR
 }
 
+function deleteInstance() {
+  cd ~/sivart-slave
+  node deleteInstance.js
+}
+
+
 function runCommand() {
   timestamp=`date +"%s.%N"`
   start=`date +"%s"`

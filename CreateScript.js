@@ -111,6 +111,7 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
   lines = this.addLines('After Script', yml.after_script, lines);
 
   lines = this.addLines('Save Logs', ['saveLogs'], lines);
+  lines = this.addLines('Save Logs', ['deleteInstance'], lines);
   return lines;
 }
 
