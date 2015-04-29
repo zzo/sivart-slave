@@ -8,7 +8,7 @@ var uuid = require('uuid');
 var gcloud = require('gcloud');
 var dataset = gcloud.datastore.dataset({
     projectId: projectId,
-    keyFilename: '/Users/trostler/Downloads/sivart-6ddd2fa23c3b.json'
+//    keyFilename: '/Users/trostler/Downloads/sivart-6ddd2fa23c3b.json'
 });
 
 var repos = {
@@ -122,14 +122,13 @@ Project.prototype.initialSave = function(errors, instances, cb) {
       return v;
   });
 
-  var me = this;
   dataset.save({ key: key, data: { errors: errors, instances: instances, github: github }}, function(err, r) {
     if (err) {
       cb(err);
     } else {
       cb(null, key);
     }
-  });
+  }));
 };
 
 module.exports = Project;
