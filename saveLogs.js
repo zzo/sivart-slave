@@ -21,7 +21,7 @@ var logDir = process.argv[2];
 var metadata = JSON.parse(fs.readFileSync(path.join(logDir, 'metadata')));
 
 // Generate bucket name
-metadata.bucket = ['sivart', uuid.v1()].join('.');
+metadata.bucket = ['sivart', uuid.v1()].join('-');
 metadata.stored = new Date().getTime();
 
 // Store metadata
