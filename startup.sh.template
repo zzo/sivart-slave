@@ -42,6 +42,8 @@ chmod 777 /var/log/startupscript.log /var/run/google.startup.script
 ###
 adduser --disabled-password --disabled-login --gecos "" sivart
 
+touch /tmp/user-script.log
+chmod 777 /tmp/user-script.log
 echo '----------- START USER SCRIPT ---------------'
 su -l sivart -c "/bin/bash /tmp/user-script" 2>&1 | tee /tmp/user-script.log
 echo '----------- END USER SCRIPT ---------------'
