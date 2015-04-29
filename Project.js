@@ -58,7 +58,8 @@ Project.prototype.createScripts = function(cb) {
 
 Project.prototype.createSlave = function(script, cb) {
   var me = this;
-  var instanceName = ['slave', uuid.v1()].join('-');
+  var safeName = this.repoName.replace(/\//g, '-');
+  var instanceName = [safeName, this.eventName, uuid.v1()].join('-');
   var data = JSON.parse(fs.readFileSync(this.slaveFile));
   data.name = instanceName;
   data.disks[0].deviceName = instanceName;
@@ -67,7 +68,7 @@ Project.prototype.createSlave = function(script, cb) {
   var sivart_slave = new Instance(projectId, this.zone, instanceName);
   sivart_slave.create({ instance: data }, function(err, resp) {
     if (err) {
-      cb('ERROR creating instance:' + error);
+      cb('ERROR creating instance:' + err);
     } else {
       script.metadata.created = new Date().getTime();
       me.slaves[instanceName] = script.metadata;
