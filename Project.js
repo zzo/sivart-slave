@@ -113,8 +113,17 @@ Project.prototype.initialSave = function(errors, instances, cb) {
   var safeName = this.repoName.replace(/\//g, '.');
   var keyKind = this.eventName;
   var key = dataset.key({ namespace: safeName, path: [ keyKind ] });
+
+  // Datasets don't like nulls in them - replace with empty strings
+  var github = JSON.parse(JSON.stringify(this.github, function(k, v) {
+    if (!v)
+      return '';
+    else
+      return v;
+  });
+
   var me = this;
-  dataset.save({ key: key, data: { errors: errors, instances: instances, github: this.github }}, function(err, r) {
+  dataset.save({ key: key, data: { errors: errors, instances: instances, github: github }}, function(err, r) {
     if (err) {
       cb(err);
     } else {
