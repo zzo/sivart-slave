@@ -34,6 +34,9 @@ EOF
 
 echo "$SCRIPT" > /tmp/user-script
 
+## So these can be saved off later by 'sivart' user
+chmod 777 /var/log/startupscript.log /var/run/google.startup.script
+
 ###
 # Dummy user
 ###
@@ -41,6 +44,4 @@ adduser --disabled-password --disabled-login --gecos "" sivart
 
 echo '----------- START USER SCRIPT ---------------'
 su -l sivart -c "/bin/bash /tmp/user-script"
-#export HOME=/root
-#/bin/bash /tmp/user-script
 echo '----------- END USER SCRIPT ---------------'

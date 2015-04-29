@@ -46,8 +46,14 @@ CreateScript.prototype.addLines = function(section, newLines, existingLines) {
       //  there are 12 here - will end up as 6 in the global startup script and finally
       //  3 in the final user-script.
       //  THIS IS ONLY FOR EXPORTING env vars to a file ($TSDRC -> .tsdrc)
-      if (command.match('GITHUB_REQUEST') || command.match('TSDRC')) {
+      if (command.match(/TSDRC/)) {
         command = command.replace(/"/g, '\\\\\\\\\\\\"');
+      }
+      if (command.match(/GITHUB_REQUEST|METADATA/)) {
+        command = command.replace(/"/g, '\\\\"');
+        // get rid of first and last '\\'s
+        command = command.replace(/\\\\/, '');
+        command = command.replace(/\\\\"$/, '"');
       }
       existingLines.push(printf("runCommand '%s'", command));
     });
@@ -68,7 +74,18 @@ CreateScript.prototype.addNodeJS = function(lines, nodejs) {
   return lines;
 }
 
-CreateScript.prototype.addGlobals = function(lines, yml) {
+CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
+
+  lines = this.addLines('Git Request', [
+    printf('export GITHUB_REQUEST="%s"', JSON.stringify(this.metadata)),
+    "echo ${GITHUB_REQUEST} > $SIVART_BASE_LOG_DIR/github.request"
+  ], lines);
+
+  // Metadata
+  lines = this.addLines('METADATA', [
+    printf('export METADATA="%s"', JSON.stringify(metadata)),
+    "echo ${METADATA} > $SIVART_BASE_LOG_DIR/metadata"
+  ], lines);
 
   // Git clone
   lines = this.addLines('GIT', [
@@ -93,10 +110,6 @@ CreateScript.prototype.addGlobals = function(lines, yml) {
   lines = this.addLines('Script', yml.script, lines);
   lines = this.addLines('After Script', yml.after_script, lines);
 
-  lines = this.addLines('Git Request', [
-    printf("export GITHUB_REQUEST=\'%s\'", JSON.stringify(this.metadata)),
-    "echo ${GITHUB_REQUEST} > $SIVART_BASE_LOG_DIR/github.request"
-  ], lines);
   lines = this.addLines('Save Logs', ['saveLogs'], lines);
   return lines;
 }
@@ -117,9 +130,10 @@ CreateScript.prototype.createScripts = function(cb) {
             printf("echo %s > $SIVART_BASE_LOG_DIR/matrix", matrix)
             ], getTemplateLines());
           var lines = me.addNodeJS(lines, node_js);
+          var metadata = me.getMetadata(node_js, matrix)
           scripts[i++] = { 
-            script: me.addGlobals(lines, yml),
-            metadata: me.getMetadata(node_js, matrix)
+            script: me.addGlobals(lines, yml, metadata),
+            metadata: metadata
           };
           i++;
         });
@@ -127,9 +141,11 @@ CreateScript.prototype.createScripts = function(cb) {
     } else {
       var i = 0;
       yml.node_js.forEach(function(node_js) {
+        var lines = me.addNodeJS(getTemplateLines(), node_js);
+        var metadata = me.getMetadata(node_js)
         scripts[i++] = { 
-          script: me.addGlobals(getTemplateLines(), yml),
-          metatdata: me.getMetadata(node_js)
+          script: me.addGlobals(getTemplateLines(), yml, metadata),
+          metatdata: metadata
         };
       });
     }
