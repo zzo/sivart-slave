@@ -46,7 +46,7 @@ CreateScript.prototype.addLines = function(section, newLines, existingLines) {
       //  there are 12 here - will end up as 6 in the global startup script and finally
       //  3 in the final user-script.
       //  THIS IS ONLY FOR EXPORTING env vars to a file ($TSDRC -> .tsdrc)
-      if (command.match('github.request') || command.match('TSDRC')) {
+      if (command.match('GITHUB_REQUEST') || command.match('TSDRC')) {
         command = command.replace(/"/g, '\\\\\\\\\\\\"');
       }
       existingLines.push(printf("runCommand '%s'", command));
@@ -93,7 +93,10 @@ CreateScript.prototype.addGlobals = function(lines, yml) {
   lines = this.addLines('Script', yml.script, lines);
   lines = this.addLines('After Script', yml.after_script, lines);
 
-  lines = this.addLines('Git Request', [printf("echo %s > $SIVART_BASE_LOG_DIR/github.request", JSON.stringify(this.metadata))], lines);
+  lines = this.addLines('Git Request', [
+    printf("export GITHUB_REQUEST=\'%s\'", JSON.stringify(this.metadata)),
+    "echo ${GITHUB_REQUEST} > $SIVART_BASE_LOG_DIR/github.request"
+  ], lines);
   lines = this.addLines('Save Logs', ['saveLogs'], lines);
   return lines;
 }

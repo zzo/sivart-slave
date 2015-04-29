@@ -22,6 +22,11 @@ function runCommand() {
   if [[ $keep -gt 0 ]] 
     then
     echo "--SIVART FAILED: $1: $keep: $len seconds" | tee -a $logf
+    echo "$1" > $SIVART_BASE_LOG_DIR/failed
+    echo "$logf" >> $SIVART_BASE_LOG_DIR/failed
+    echo "$keep" >> $SIVART_BASE_LOG_DIR/failed
+    echo "$end" >> $SIVART_BASE_LOG_DIR/failed
+    echo "$len" >> $SIVART_BASE_LOG_DIR/failed
     saveLogs
     exit $keep
   else 
