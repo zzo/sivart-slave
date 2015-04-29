@@ -114,14 +114,34 @@ CreateScript.prototype.createScripts = function(cb) {
             printf("echo %s > $SIVART_BASE_LOG_DIR/matrix", matrix)
             ], getTemplateLines());
           var lines = me.addNodeJS(lines, node_js);
-          scripts[i++] = me.addGlobals(lines, yml);
+          scripts[i++] = { 
+            script: me.addGlobals(lines, yml),
+            metadata: me.getMetadata(node_js, matrix)
+          };
+          i++;
         });
       });
     } else {
-      scripts[0] = me.addGlobals(getTemplateLines(), yml);
+      var i = 0;
+      yml.node_js.forEach(function(node_js) {
+        scripts[i++] = { 
+          script: me.addGlobals(getTemplateLines(), yml),
+          metatdata: me.getMetadata(node_js)
+        };
+      });
     }
     cb(null, scripts);
   });
+};
+
+CreateScript.prototype.getMetadata = function(node_js, matrix) {
+  return {
+    name: this.repoName,
+    commit: this.commit,
+    branch: this.branch,
+    node_js: node_js,
+    matrix: matrix
+  };
 };
 
 CreateScript.prototype.getScripts = function(cb) {
@@ -133,8 +153,8 @@ CreateScript.prototype.getScripts = function(cb) {
       var done = [];
       scripts.forEach(function(script) {
         var template = fs.readFileSync(path.join(__dirname, 'startup.sh.template'), 'utf8');
-        template = template.replace('USER_SCRIPT', script.join("\n"));
-        done.push(template);
+        var startupScript = template.replace('USER_SCRIPT', script.script.join("\n"));
+        done.push({script: startupScript, metadata: script.metadata});
       });
       cb(null, done);
     }

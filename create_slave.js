@@ -2,20 +2,21 @@ var Project = require('./Project');
 
 var repos = {
   angular2: {
-    ref: 'path/to/master',
+    ref: 'master',
     after: 'HEAD',
     repository: { 
       full_name: 'angular/angular', 
       clone_url: 'https://github.com/angular/angular.git' 
     },
-  }
-  /*
+  },
   angular: {
-    repoName: 'angular.js', 
-    cloneURL: 'https://github.com/angular/angular.js.git',
-    yamlURL: 'https://raw.githubusercontent.com/angular/angular.js/master/.travis.yml'
+    ref: 'master',
+    after: 'HEAD',
+    repository: { 
+      full_name: 'angular/angular.js', 
+      clone_url: 'https://github.com/angular/angular.js.git' 
+    },
   }
-  */
 };
 
 var which = process.env[2] || 'angular2';

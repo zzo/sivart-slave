@@ -51,20 +51,21 @@ Project.prototype.createScripts = function(cb) {
 
 Project.prototype.createSlave = function(script, cb) {
   var me = this;
-  var hash = crypto.createHash('md5').update(script).digest("hex");
+  var hash = crypto.createHash('md5').update(script.script).digest("hex");
   var instanceName = 'slave-' + hash;
   var data = JSON.parse(fs.readFileSync(this.slaveFile));
   data.name = instanceName;
   data.disks[0].deviceName = instanceName;
-  data.metadata.items[0].value = script.replace('$', '\\$');
-  data.metadata.items[0].value = script;
+  data.metadata.items[0].value = script.script.replace('$', '\\$');
+  data.metadata.items[0].value = script.script;
   var sivart_slave = new Instance(projectId, this.zone, instanceName);
   sivart_slave.create({ instance: data }, function(err, resp) {
     if (err) {
       cb('ERROR creating instance:' + error);
     } else {
+      script.metadata.created = new Date().getTime();
+      me.slaves[instanceName] = script.metadata;
       cb(null, instanceName);
-      me.slaves[instanceName] = resp;
     }
   });
 };
@@ -77,13 +78,13 @@ Project.prototype.createAllSlaves = function(cb) {
     } else {
       var done = 0;
       var errors = [];
-      var responses = [];
+      var responses = {};
       scripts.forEach(function(script) {
         me.createSlave(script, function(err, data) {
           if (err) {
             errors.push(err);
           } else {
-            responses.push(data);
+            responses[data] = script.metadata;
           }
           done++;
           if (done == scripts.length) {
