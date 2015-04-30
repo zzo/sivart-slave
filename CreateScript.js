@@ -79,7 +79,7 @@ CreateScript.prototype.addNodeJS = function(lines, nodejs) {
 
 CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
 
-  lines.push('startTimestamp=`date +"%s.%N"`');
+  lines.push('startTimestamp=`date +"%s"`');
 
   lines = this.addLines('Git Request', [
     printf('export GITHUB_REQUEST="%s"', JSON.stringify(this.metadata)),
@@ -134,7 +134,7 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
   lines = this.addLines('Save Logs', ['saveLogs'], lines);
 
   lines = lines.concat([
-    'endTimestamp=`date +"%s.%N"`',
+    'endTimestamp=`date +"%s"`',
     'totalTime=$((endTimestamp - startTimestamp))',
     'echo Total time is $totalTime seconds'
   ]);

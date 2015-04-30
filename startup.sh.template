@@ -11,6 +11,7 @@ apt-get update
 
 ### or -beta or -unstable (chrome)
 apt-get install -y git xvfb build-essential unzip google-chrome-stable libssl-dev default-jre nodejs npm
+ln -s /usr/bin/nodejs /usr/bin/node
 
 ###
 # Start Xvfb ghetto-style
