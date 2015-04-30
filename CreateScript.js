@@ -95,9 +95,9 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
     // TODO(trostler) fix this up if testing a PR
     printf('git clone --depth=50 --branch=%s %s', this.branch, this.cloneURL, this.repoName),
     printf('cd %s', this.repoName),
-    printf('git checkout -qf %s', this.commit)
-    printf('export SIVART_REPO_NAME=%s', this.repoName);
-    printf('export SIVART_REPO_BRANCH=%s', this.branch);
+    printf('git checkout -qf %s', this.commit),
+    printf('export SIVART_REPO_NAME=%s', this.repoName),
+    printf('export SIVART_REPO_BRANCH=%s', this.branch)
   ], lines);
 
   // Global env variables

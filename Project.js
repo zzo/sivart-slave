@@ -1,15 +1,13 @@
 var Instance = require('sivart-GCE/Instance');
-var projectId = 'focal-inquiry-92622';
 var fs = require('fs');
 var CreateScript = require('./CreateScript');
 var path = require('path');
 var printf = require('util').format;
 var uuid = require('uuid');
 var gcloud = require('gcloud');
-var dataset = gcloud.datastore.dataset({
-    projectId: projectId,
-//    keyFilename: '/Users/trostler/Downloads/sivart-6ddd2fa23c3b.json'
-});
+var gce_args = require('sivart-GCE/Auth');
+
+var dataset = gcloud.datastore.dataset(gce_args);
 
 function Project(eventName, args) {
   // TODO(trostler): handle other events (like PR)
@@ -28,7 +26,7 @@ function Project(eventName, args) {
   this.createScript = new CreateScript(this);
   this.slaveFile  = args.slaveJSON || path.join(__dirname, 'gce/slave.json');
   this.zone = args.zone || 'us-central1-a';
-  this.projectId = args.projectId || projectId;
+  this.projectId = args.projectId || gce_args.projectId;
   this.slaves = {};
 }
 

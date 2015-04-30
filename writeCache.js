@@ -1,6 +1,6 @@
 var fs = require('fs');
 var path = require('path');
-var projectId = 'focal-inquiry-92622';
+var Auth = require('sivart-GCE/Auth');
 var os = require('os');
 var targz = require('tar.gz');
 var printf = require('util').format;
@@ -11,10 +11,7 @@ var reopName = process.argv[3];
 var branch = process.argv[4];
 
 var gcloud = require('gcloud');
-var storage = gcloud.storage({
-    projectId: projectId,
-//    keyFilename: '/Users/trostler/Downloads/sivart-6ddd2fa23c3b.json'
-});
+var storage = gcloud.storage(Auth);
 
 var safeDir = cacheDir.replace(/\//g, '-');
 var tmpFile = path.join(os.tmpdir(), printf('cache-%s.tgz', safeDir));

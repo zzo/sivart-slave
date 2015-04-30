@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var os = require('os');
-var projectId = 'focal-inquiry-92622';
+var Auth = require('sivart-GCE/Auth');
 var targz = require('tar.gz');
 
 //Get info 
@@ -9,10 +9,7 @@ var reopName = process.argv[2];
 var branch = process.argv[3];
 
 var gcloud = require('gcloud');
-var storage = gcloud.storage({
-    projectId: projectId,
-//    keyFilename: '/Users/trostler/Downloads/sivart-6ddd2fa23c3b.json'
-});
+var storage = gcloud.storage(Auth);
 
 var safeRepo = repoName.replace(/\//g, '-');
 var bucketname = ['sivart', safeRepo, branch].join('-');

@@ -1,14 +1,11 @@
 var fs = require('fs');
 var path = require('path');
 var hostname = require("os").hostname();
+var Auth = require('sivart-GCE/Auth');
 
-var projectId = 'focal-inquiry-92622';
 var gcloud = require('gcloud');
 
-var storage = gcloud.storage({
-    projectId: projectId,
-//    keyFilename: '/Users/trostler/Downloads/sivart-6ddd2fa23c3b.json'
-});
+var storage = gcloud.storage(Auth);
 
 //Get metadata
 var logDir = process.argv[2];

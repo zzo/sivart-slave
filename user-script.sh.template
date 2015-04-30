@@ -8,12 +8,12 @@ pushd $SIVART_SLAVE
 npm install
 popd
 
-funcion getCaches() {
+function getCaches() {
   # besdies directory to cache we also need the full repo name & branch
   nodejs $SIVART_SLAVE/getCache.js $SIVART_REPO_NAME $SIVART_REPO_BRANCH
 }
 
-funcion saveCache() {
+function saveCache() {
   # besdies directory to cache we also need the full repo name & branch
   nodejs $SIVART_SLAVE/writeCache.js $1 $SIVART_REPO_NAME $SIVART_REPO_BRANCH
 }
