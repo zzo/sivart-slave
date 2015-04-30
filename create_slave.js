@@ -5,7 +5,7 @@ var repos = {
     ref: 'master',
     after: 'HEAD',
     repository: { 
-      full_name: 'angular/angular', 
+      full_name: 'zzo/angular', 
       clone_url: 'https://github.com/angular/angular.git' 
     },
     keepVM: 1  // for debugging
@@ -14,7 +14,7 @@ var repos = {
     ref: 'master',
     after: 'HEAD',
     repository: { 
-      full_name: 'angular/angular.js', 
+      full_name: 'zzo/angular.js', 
       clone_url: 'https://github.com/angular/angular.js.git' 
     },
   }

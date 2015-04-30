@@ -7,7 +7,7 @@ var printf = require('util').format;
 
 //Get info 
 var cacheDir = process.argv[2];
-var reopName = process.argv[3];
+var repoName = process.argv[3];
 var branch = process.argv[4];
 
 var gcloud = require('gcloud');
