@@ -3,10 +3,10 @@ mkdir -p $SIVART_BASE_LOG_DIR
 SIVART_SLAVE=/tmp/sivart-slave
 
 # Used for caching and logging and other utilities
-git clone https://github.com/zzo/sivart-slave $SIVART_SLAVE > /dev/null 2>&1
-pushd $SIVART_SLAVE
-npm install > /dev/null 2>&1
-popd
+git clone https://github.com/zzo/sivart-slave $SIVART_SLAVE > /tmp/sivart-slave.log 2>&1
+pushd $SIVART_SLAVE > /dev/null 2>&1
+npm install >> /tmp/sivart-slave.log 2>&1
+popd > /dev/null 2>&1
 
 function getCaches() {
   # besdies directory to cache we also need the full repo name & branch
@@ -52,5 +52,3 @@ function runCommand() {
   fi
 #  cat $logf  # Drop output here when done or keep this file clean?
 } 
-
-echo "Start: `date`"

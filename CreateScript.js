@@ -79,6 +79,8 @@ CreateScript.prototype.addNodeJS = function(lines, nodejs) {
 
 CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
 
+  lines.push('startTimestamp=`date +"%s.%N"`');
+
   lines = this.addLines('Git Request', [
     printf('export GITHUB_REQUEST="%s"', JSON.stringify(this.metadata)),
     "echo ${GITHUB_REQUEST} > $SIVART_BASE_LOG_DIR/github.request"
@@ -130,6 +132,13 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
   lines = this.addLines('After Script', yml.after_script, lines);
 
   lines = this.addLines('Save Logs', ['saveLogs'], lines);
+
+  lines = lines.concat([
+    'endTimestamp=`date +"%s.%N"`',
+    'totalTime=$((endTimestamp - startTimestamp))',
+    'echo Total time is $totalTime seconds'
+  ]);
+
   if (!this.keepVM) {
     lines = this.addLines('Delete VM', ['deleteInstance'], lines);
   }
