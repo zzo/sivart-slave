@@ -32,7 +32,7 @@ function handleResults(err, files, nextQuery) {
   files.forEach(function(file) {
     var tmpPath = path.join(os.tmpdir(), file.name);
     file.createReadStream().pipe(fs.createWriteStream(tmpPath));
-    new targz().extract(tmpPath, '.', function(err) {
+    new targz().extract(tmpPath, process.cwd(), function(err) {
       if (err) {
         console.log('Error extracting cache file');
         console.log(err);

@@ -3,12 +3,9 @@ mkdir -p $SIVART_BASE_LOG_DIR
 SIVART_SLAVE=/tmp/sivart-slave
 
 # Used for caching and logging and other utilities
-git clone https://github.com/zzo/sivart-slave $SIVART_SLAVE > /dev/null
+git clone https://github.com/zzo/sivart-slave $SIVART_SLAVE > /dev/null 2>&1
 pushd $SIVART_SLAVE
-shopt -s expand_aliases
-alias node=nodejs
-npm install > /dev/null
-unalias node
+npm install > /dev/null 2>&1
 popd
 
 function getCaches() {
