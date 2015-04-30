@@ -96,6 +96,8 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
     printf('git clone --depth=50 --branch=%s %s', this.branch, this.cloneURL, this.repoName),
     printf('cd %s', this.repoName),
     printf('git checkout -qf %s', this.commit)
+    printf('export SIVART_REPO_NAME=%s', this.repoName);
+    printf('export SIVART_REPO_BRANCH=%s', this.branch);
   ], lines);
 
   // Global env variables
@@ -104,10 +106,24 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
     lines = this.addLines('Globals', globals, lines);
   }
 
+  // Get Cache
+  if (yml.cache && yml.cache.directories) {
+    lines = this.addLines('Get Cached Directories', [ 'getCaches' ], lines);
+  }
+
   // Other stuff
   lines = this.addLines('Before Install', yml.before_install, lines);
   lines = this.addLines('Install', yml.install, lines);
   lines = this.addLines('After Install', yml.after_install, lines);
+
+  // Save Cache
+  if (yml.cache && yml.cache.directories) {
+    var cacheLines = [];
+    yml.cache.directories.forEach(function(directory) {
+      cacheLines.push(printf('saveCache %s', directory));
+    });
+    lines = this.addLines('Store Directories in Cache', cacheLines, lines);
+  }
 
   lines = this.addLines('Before Script', yml.before_script, lines);
   lines = this.addLines('Script', yml.script, lines);

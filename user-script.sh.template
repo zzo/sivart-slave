@@ -1,12 +1,25 @@
 SIVART_BASE_LOG_DIR=/tmp/sivart/logs
 mkdir -p $SIVART_BASE_LOG_DIR
+SIVART_SLAVE=/tmp/sivart-slave
+
+# Used for cache'ing and logging
+git clone https://github.com/zzo/sivart-slave $SIVART_SLAVE
+pushd $SIVART_SLAVE
+npm install
+popd
+
+funcion getCaches() {
+  # besdies directory to cache we also need the full repo name & branch
+  nodejs $SIVART_SLAVE/getCache.js $SIVART_REPO_NAME $SIVART_REPO_BRANCH
+}
+
+funcion saveCache() {
+  # besdies directory to cache we also need the full repo name & branch
+  nodejs $SIVART_SLAVE/writeCache.js $1 $SIVART_REPO_NAME $SIVART_REPO_BRANCH
+}
 
 function saveLogs() {
-  cd
-  git clone https://github.com/zzo/sivart-slave /tmp/sivart-slave
-  cd /tmp/sivart-slave
-  npm install
-  node saveLogs.js $SIVART_BASE_LOG_DIR
+  nodejs $SIVART_SLAVE/saveLogs.js $SIVART_BASE_LOG_DIR
 }
 
 function deleteInstance() {

@@ -11,6 +11,7 @@
     "googleapis": "^2.0.2",
     "js-yaml": "^3.3.0",
     "sivart-GCE": "zzo/sivart-GCE",
+    "tar.gz": "^0.1.1",
     "uuid": "^2.0.1"
   },
   "license": "Apache-2.0",
