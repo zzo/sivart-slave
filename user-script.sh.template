@@ -2,10 +2,13 @@ SIVART_BASE_LOG_DIR=/tmp/sivart/logs
 mkdir -p $SIVART_BASE_LOG_DIR
 SIVART_SLAVE=/tmp/sivart-slave
 
-# Used for cache'ing and logging
-git clone https://github.com/zzo/sivart-slave $SIVART_SLAVE
+# Used for caching and logging and other utilities
+git clone https://github.com/zzo/sivart-slave $SIVART_SLAVE > /dev/null
 pushd $SIVART_SLAVE
-npm install
+shopt -s expand_aliases
+alias node=nodejs
+npm install > /dev/null
+unalias node
 popd
 
 function getCaches() {
@@ -52,3 +55,5 @@ function runCommand() {
   fi
 #  cat $logf  # Drop output here when done or keep this file clean?
 } 
+
+echo "Start: `date`"
