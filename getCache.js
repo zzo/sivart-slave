@@ -37,7 +37,7 @@ function handleResults(err, files, nextQuery) {
         console.log('Error extracting cache file');
         console.log(err);
       } else {
-        console.log('Restored cache directory: ' + path.basename(tmpPath));
+        console.log('Restored cache directory: ' + path.basename(tmpPath) + ' to ' + process.cwd());
       }
     });
   });

@@ -118,6 +118,10 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
   lines = this.addLines('Install', yml.install, lines);
   lines = this.addLines('After Install', yml.after_install, lines);
 
+  lines = this.addLines('Before Script', yml.before_script, lines);
+  lines = this.addLines('Script', yml.script, lines);
+  lines = this.addLines('After Script', yml.after_script, lines);
+
   // Save Cache
   if (yml.cache && yml.cache.directories) {
     var cacheLines = [];
@@ -126,10 +130,6 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
     });
     lines = this.addLines('Store Directories in Cache', cacheLines, lines);
   }
-
-  lines = this.addLines('Before Script', yml.before_script, lines);
-  lines = this.addLines('Script', yml.script, lines);
-  lines = this.addLines('After Script', yml.after_script, lines);
 
   lines = this.addLines('Save Logs', ['saveLogs'], lines);
 
