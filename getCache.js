@@ -5,7 +5,7 @@ var Auth = require('sivart-GCE/Auth');
 var targz = require('tar.gz');
 
 //Get info 
-var reopName = process.argv[2];
+var repoName = process.argv[2];
 var branch = process.argv[3];
 
 var gcloud = require('gcloud');
