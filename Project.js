@@ -5,9 +5,9 @@ var path = require('path');
 var printf = require('util').format;
 var uuid = require('uuid');
 var gcloud = require('gcloud');
-var gce_args = require('sivart-GCE/Auth');
+var Auth = require('sivart-GCE/Auth');
 
-var dataset = gcloud.datastore.dataset(gce_args);
+var dataset = gcloud.datastore.dataset(Auth);
 
 function Project(eventName, args) {
   // TODO(trostler): handle other events (like PR)
@@ -26,7 +26,7 @@ function Project(eventName, args) {
   this.createScript = new CreateScript(this);
   this.slaveFile  = args.slaveJSON || path.join(__dirname, 'gce/slave.json');
   this.zone = args.zone || 'us-central1-a';
-  this.projectId = args.projectId || gce_args.projectId;
+  this.projectId = args.projectId || Auth.projectId;
   this.slaves = {};
 }
 
@@ -51,7 +51,7 @@ Project.prototype.createSlave = function(script, cb) {
   data.disks[0].deviceName = instanceName;
   data.metadata.items[0].value = script.script.replace('$', '\\$');
   data.metadata.items[0].value = script.script;
-  var sivart_slave = new Instance(projectId, this.zone, instanceName);
+  var sivart_slave = new Instance(Auth.projectId, this.zone, instanceName);
   sivart_slave.create({ instance: data }, function(err, resp) {
     if (err) {
       cb('ERROR creating instance:' + err);
