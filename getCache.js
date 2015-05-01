@@ -16,9 +16,13 @@ var bucketname = ['sivart', safeRepo, branch].join('-');
 
 // Get files
 storage.createBucket(bucketname, function(err, bucket) {
+
   if (err) {
+    // Bucket already exists...
     bucket = storage.bucket(bucketname);
   } 
+
+  // Get all the cache files for this repo+branch combination
   bucket.getFiles({prefix: 'cache-'}, handleResults);
 });
 
@@ -32,7 +36,7 @@ function handleResults(err, files, nextQuery) {
   files.forEach(function(file) {
     var tmpPath = path.join(os.tmpdir(), file.name);
     file.download(
-      { destination: tmpFile }, 
+      { destination: tmpPath }, 
       function(err) {
         if (err) {
           console.log('Error getting cache directory: ' + tmpPath);
