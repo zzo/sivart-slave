@@ -47,7 +47,7 @@ storage.createBucket(bucketname, function(err, bucket) {
             var stat = fs.lstatSync(tmpFile);
             console.log(stat);
             if (files[0].metadata.md5Hash != hashValue) {
-    file.download(
+    files[0].download(
       { destination: tmpFile + '.orig' }, 
       function(err) {
         if (err) {
