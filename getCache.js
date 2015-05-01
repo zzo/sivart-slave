@@ -50,18 +50,8 @@ function handleResults(err, files, nextQuery) {
                 } else {
                   console.log('Restored cache directory: ' + path.basename(tmpPath));
                 }
-
-          // tar xaf tmpPath
-          /*
-          new targz().extract(tmpPath, process.cwd(), function(err) {
-            if (err) {
-              console.log('Error extracting cache file');
-              console.log(err);
-            } else {
-              console.log('Restored cache directory: ' + path.basename(tmpPath));
             }
-          });
-          */
+          );
         }
       }
     );
