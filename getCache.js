@@ -31,15 +31,23 @@ function handleResults(err, files, nextQuery) {
   // Extract results
   files.forEach(function(file) {
     var tmpPath = path.join(os.tmpdir(), file.name);
-    file.createReadStream().pipe(fs.createWriteStream(tmpPath));
-    new targz().extract(tmpPath, process.cwd(), function(err) {
-      if (err) {
-        console.log('Error extracting cache file');
-        console.log(err);
-      } else {
-        console.log('Restored cache directory: ' + path.basename(tmpPath) + ' to ' + process.cwd());
+    file.download(
+      { destination: tmpFile }, 
+      function(err) {
+        if (err) {
+          console.log('Error getting cache directory: ' + tmpPath);
+        } else {
+          new targz().extract(tmpPath, process.cwd(), function(err) {
+            if (err) {
+              console.log('Error extracting cache file');
+              console.log(err);
+            } else {
+              console.log('Restored cache directory: ' + path.basename(tmpPath));
+            }
+          });
+        }
       }
-    });
+    );
   });
 
   if (nextQuery) {
