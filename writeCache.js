@@ -16,7 +16,8 @@ var gcloud = require('gcloud');
 var storage = gcloud.storage(Auth);
 
 var safeDir = cacheDir.replace(/\//g, '-');
-var tmpFile = path.join(os.tmpdir(), printf('cache-%s.lzo', safeDir));
+//var tmpFile = path.join(os.tmpdir(), printf('cache-%s.lzo', safeDir));
+var tmpFile = path.join(os.tmpdir(), printf('cache-%s.tar', safeDir));
 var baseName = path.basename(tmpFile);
 
 // Save files

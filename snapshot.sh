@@ -1,0 +1,46 @@
+#! /bin/bash
+
+###
+# Chrome
+###
+wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
+echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google-chrome.list
+####
+
+apt-get update
+
+### or -beta or -unstable (chrome)
+apt-get install -y git xvfb build-essential unzip google-chrome-stable libssl-dev default-jre nodejs npm lzop
+ln -s /usr/bin/nodejs /usr/bin/node
+
+###
+# Start Xvfb ghetto-style
+###
+/usr/bin/Xvfb :99 -screen 0 1280x1024x24 &
+touch /etc/init.d/xvfb ## Fake out travis scripts
+
+###
+# DARTIUM fix: https://code.google.com/p/dart/issues/detail?id=12325
+#   Dartium needs libudev.0
+###
+wget http://launchpadlibrarian.net/119461136/libudev0_175-0ubuntu13_amd64.deb
+dpkg -i libudev0_175-0ubuntu13_amd64.deb
+apt-get install -f
+
+###
+# Dummy user
+###
+adduser --disabled-password --disabled-login --gecos "" sivart
+
+## So these can be saved off later by 'sivart' user
+touch /tmp/user-script.log
+chmod 777 /tmp/user-script.log
+chmod 777 /var/log/startupscript.log /var/run/google.startup.script
+
+git clone https://github.com/zzo/sivart-slave.git /usr/local/sivart-slave
+pushd /usr/local/sivart-slave
+HOME=/tmp npm install
+chown -R sivart:users /usr/local/sivart-slave
+popd
+
+echo __DONE__

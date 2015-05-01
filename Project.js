@@ -50,9 +50,9 @@ Project.prototype.createSlave = function(script, cb) {
   var instanceName = [safeName, this.eventName, uuid.v1()].join('-');
   var data = JSON.parse(fs.readFileSync(this.slaveFile));
   data.name = instanceName;
-  data.disks[0].deviceName = instanceName;
+  data.disks[0].deviceName = 'slave-disk';
+  data.disks[0].initializeParams.sourceImage = 'global/images/slave'; // Created with 'createSnapshot.js'
   data.metadata.items[0].value = script.script.replace('$', '\\$');
-  data.metadata.items[0].value = script.script;
   var sivartSlave = new Instance(Auth.projectId, this.zone, instanceName);
   sivartSlave.create({ instance: data }, function(err) { // , resp) {
     if (err) {

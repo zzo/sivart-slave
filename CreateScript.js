@@ -14,6 +14,7 @@ function CreateScript(args) {
   this.commit = args.commit;
   this.branch = args.branch;
   this.metadata = args.metadata;
+  this.createSnapshot = args.createSnapshot;
 
   this.keepVM = args.keepVM
 }
