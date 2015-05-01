@@ -65,10 +65,11 @@ storage.createBucket(bucketname, function(cberr, bucket) {
     files[0].download(
       { destination: tmpFile + '.orig' },
       function(err) {
+        /*
         if (err) {
           console.log('Error getting cache directory: ' + tmpFile);
         } else {
-
+          */
               // ship it
               console.log(printf('Directory changed - uploading...'));
               bucket.upload(tmpFile, { destination: baseName },
@@ -81,7 +82,9 @@ storage.createBucket(bucketname, function(cberr, bucket) {
                   }
                 }
               );
-        }});
+        }
+       // }
+        );
             } else {
               console.log(printf('Directory unchanged - not updating'));
             }
