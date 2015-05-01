@@ -47,6 +47,13 @@ storage.createBucket(bucketname, function(err, bucket) {
             var stat = fs.lstatSync(tmpFile);
             console.log(stat);
             if (files[0].metadata.md5Hash != hashValue) {
+    file.download(
+      { destination: tmpFile + '.orig' }, 
+      function(err) {
+        if (err) {
+          console.log('Error getting cache directory: ' + tmpPath);
+        } else {
+
               // ship it
               console.log(printf('Directory changed - uploading...'));
               bucket.upload(tmpFile, { destination: baseName },
@@ -59,6 +66,7 @@ storage.createBucket(bucketname, function(err, bucket) {
                   }
                 }
               );
+        }});
             } else {
               console.log(printf('Directory unchanged - not updating'));
             }
