@@ -6,7 +6,7 @@ var targz = require('tar.gz');
 var printf = require('util').format;
 var hash = require('crypto').createHash('md5');
 
-//Get info 
+// Get info 
 var cacheDir = process.argv[2];
 var repoName = process.argv[3];
 var branch = process.argv[4];
@@ -40,7 +40,7 @@ storage.createBucket(bucketname, function(err, bucket) {
       getHash(tmpFile, function(hashValue) {
         bucket.getFiles({prefix: baseName}, function handleResults(err, files) {
           if (err || !files[0]) {
-            files[0] = { metadata: { hashValue: 0 } };
+            files[0] = bucket.file(baseName);
             console.log(err || 'cache file does not exist: ' + baseName);
           }
           if (files[0]) {
