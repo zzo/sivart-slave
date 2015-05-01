@@ -10,7 +10,7 @@ echo "deb http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/source
 apt-get update
 
 ### or -beta or -unstable (chrome)
-apt-get install -y git xvfb build-essential unzip google-chrome-stable libssl-dev default-jre nodejs npm
+apt-get install -y git xvfb build-essential unzip google-chrome-stable libssl-dev default-jre nodejs npm lzip
 ln -s /usr/bin/nodejs /usr/bin/node
 
 ###
@@ -47,4 +47,4 @@ touch /tmp/user-script.log
 chmod 777 /tmp/user-script.log
 echo '----------- START USER SCRIPT ---------------'
 su -l sivart -c "/bin/bash /tmp/user-script" 2>&1 | tee /tmp/user-script.log
-echo '----------- END USER SCRIPT ---------------'
+echo '----------- END USER SCRIPT -----------------'

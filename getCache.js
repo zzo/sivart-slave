@@ -41,6 +41,18 @@ function handleResults(err, files, nextQuery) {
         if (err) {
           console.log('Error getting cache directory: ' + tmpPath);
         } else {
+          var exec = require('child_process').exec;
+          exec(printf('tar xaf %s', tmpPath), { cwd: process.cwd() },
+            function(err, stdout, stderr) {
+                if (err) {
+                  console.log("error decompressing:");
+                  console.log(err);
+                } else {
+                  console.log('Restored cache directory: ' + path.basename(tmpPath));
+                }
+
+          // tar xaf tmpPath
+          /*
           new targz().extract(tmpPath, process.cwd(), function(err) {
             if (err) {
               console.log('Error extracting cache file');
@@ -49,6 +61,7 @@ function handleResults(err, files, nextQuery) {
               console.log('Restored cache directory: ' + path.basename(tmpPath));
             }
           });
+          */
         }
       }
     );
