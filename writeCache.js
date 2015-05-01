@@ -39,8 +39,13 @@ storage.createBucket(bucketname, function(err, bucket) {
         bucket.getFiles({prefix: baseName}, function handleResults(err, files) {
           if (err || !files[0]) {
             files[0] = { metadata: { hashValue: 0 } };
+            console.log(err || 'cache file does not exist: ' + baseName);
           }
           if (files[0]) {
+            console.log(files[0].metadata);
+            console.log(hashValue);
+            var stat = fs.lstatSync(tmpFile);
+            console.log(stat);
             if (files[0].metadata.md5Hash != hashValue) {
               // ship it
               console.log(printf('Directory changed - uploading...'));
