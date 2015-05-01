@@ -120,7 +120,7 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
   lines = this.addLines('After Install', yml.after_install, lines);
 
   lines = this.addLines('Before Script', yml.before_script, lines);
-  //lines = this.addLines('Script', yml.script, lines);
+  lines = this.addLines('Script', yml.script, lines);
   lines = this.addLines('After Script', yml.after_script, lines);
 
   // Save Cache
