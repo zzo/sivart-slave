@@ -134,11 +134,11 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
     lines = this.addLines('Store Directories in Cache', cacheLines, lines);
   }
 
-  lines = lines.concat([
+  lines = this.addLines('Finished', [
     'endTimestamp=`date +"%s"`',
     'totalTime=$((endTimestamp - startTimestamp))',
     'echo Total time is $totalTime seconds'
-  ]);
+  ], lines);
 
   lines = this.addLines('Save Logs', ['saveLogs'], lines);
 
