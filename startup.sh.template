@@ -3,11 +3,10 @@
 USER_LOG=/tmp/user-script.log
 function timedout() {
   TIMEOUT_LOG=/tmp/sivart/logs/timeout.log
-  echo Timed out after SIVART_TIMEOUT seconds > $TIMEOUT_LOG
   echo $1 >> $TIMEOUT_LOG
   ps auxw | grep sivart | grep -v '^root' | grep -v grep >> $TIMEOUT_LOG
-  nodejs /usr/local/sivart-slave/saveLogs.js /tmp/sivart/logs > /tmp/savelogs
-  nodejs /usr/local/slivart-slave/deleteInstance.js > /tmp/o
+  /usr/bin/nodejs /usr/local/sivart-slave/saveLogs.js /tmp/sivart/logs
+  /usr/bin/nodejs /usr/local/sivart-slave/deleteInstance.js
 }
 
 read -d '' SCRIPT <<'EOF'
@@ -43,12 +42,8 @@ echo "$SCRIPT" > /tmp/user-script.sh
     # Be nice, post SIGTERM first.
     # The 'exit 0' below will be executed if any preceeding command fails.
     timedout "Build took too long"
-#    kill -s SIGTERM $$ && kill -0 $$ || exit 0
-#    sleep $delay
-#    kill -s SIGKILL $$
 ) 2> /dev/null &
 
 echo '----------- START USER SCRIPT ---------------'
 su -l sivart -c "/bin/bash /tmp/user-script.sh" 2>&1 | tee $USER_LOG
-#( (sleep SIVART_TIMEOUT; timedout) & exec su -l sivart -c "/bin/bash /tmp/user-script.sh" 2>&1 | tee $USER_LOG )
 echo '----------- END USER SCRIPT -----------------'
