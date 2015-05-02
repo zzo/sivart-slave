@@ -28,10 +28,9 @@ function deleteInstance() {
 }
 
 function runCommand() {
-  baselogfile=`date +"%s.%N"`.log
-  start=`date +"%s"`
-  logf=$SIVART_BASE_LOG_DIR/$baselogfile
+  logf=$SIVART_BASE_LOG_DIR/`date +"%s.%N"`.log
   echo "--COMMAND START: $1: $logf: `date`" | tee $logf
+  start=`date +"%s"`
   eval $1 >> $logf 2>&1
   keep=$?
   end=`date +"%s"`
@@ -40,7 +39,7 @@ function runCommand() {
     then
     echo "--COMMAND FAILED: $1: $keep: $len seconds" | tee -a $logf
     echo "command: $1" > $SIVART_BASE_LOG_DIR/failed
-    echo "log file: $logf" >> $SIVART_BASE_LOG_DIR/failed
+    echo "log file: `basename $logf`" >> $SIVART_BASE_LOG_DIR/failed
     echo "exit code: $keep" >> $SIVART_BASE_LOG_DIR/failed
     echo "start time: `date -d @$start`" >> $SIVART_BASE_LOG_DIR/failed
     echo "end time: `date -d @$end`" >> $SIVART_BASE_LOG_DIR/failed
