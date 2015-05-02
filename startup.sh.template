@@ -16,10 +16,10 @@ read -d '' SCRIPT <<'EOF'
 SIVART_USER_SCRIPT
 EOF
 
-interval=5
 echo "$SCRIPT" > /tmp/user-script.sh
 
 (
+    interval=5
     nochange=0
     oldsum=`find /tmp/sivart/logs/ -type f -print0 | sort -z | xa rgs -0 sha1sum | sha1sum`
     newsum=0
@@ -41,9 +41,6 @@ echo "$SCRIPT" > /tmp/user-script.sh
           fi
         fi
     done
-
-    # Be nice, post SIGTERM first.
-    # The 'exit 0' below will be executed if any preceeding command fails.
     timedout "Build took too long"
 ) 2> /dev/null &
 
