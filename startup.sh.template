@@ -4,9 +4,10 @@ USER_LOG=/tmp/user-script.log
 function timedout() {
   TIMEOUT_LOG=/tmp/sivart/logs/timeout.log
   echo Timed out after SIVART_TIMEOUT seconds > $TIMEOUT_LOG
+  echo $1 >> $TIMEOUT_LOG
   ps auxw | grep sivart | grep -v '^root' | grep -v grep >> $TIMEOUT_LOG
   nodejs /usr/local/sivart-slave/saveLogs.js /tmp/sivart/logs
-#  nodejs /usr/local/slivart-slave/deleteInstance.js
+  nodejs /usr/local/slivart-slave/deleteInstance.js
 }
 
 read -d '' SCRIPT <<'EOF'
@@ -17,17 +18,31 @@ interval=5
 echo "$SCRIPT" > /tmp/user-script.sh
 
 (
+    nochange=0
+    oldsum=`find /tmp/sivart/logs/ -type f -print0 | sort -z | xa rgs -0 sha1sum | sha1sum`
+    newsum=0
+
     ((t = SIVART_TIMEOUT))
 
     while ((t > 0)); do
         sleep $interval
         kill -0 $$ || exit 0
         ((t -= interval))
+        newsum=`find /tmp/sivart/logs/ -type f -print0 | sort -z | xa rgs -0 sha1sum | sha1sum`
+        if ((newsum != oldsum )); then
+          nochange=0
+          oldsum=$newsum
+        else
+          nochange=$((nochange + interval))
+          if ((nochange > SIVART_KILL_AFTER_NO_CHANGE)); then
+            timedout "No output after SIVART_KILL_AFTER_NO_CHANGE seconds"
+          fi
+        fi
     done
 
     # Be nice, post SIGTERM first.
     # The 'exit 0' below will be executed if any preceeding command fails.
-    timedout
+    timedout "Build took too long"
 #    kill -s SIGTERM $$ && kill -0 $$ || exit 0
 #    sleep $delay
 #    kill -s SIGKILL $$

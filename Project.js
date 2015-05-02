@@ -17,6 +17,7 @@ function Project(eventName, args) {
   this.keepVM = args.keepVM;
   this.github = args;
   this.timeout = args.timeout || 3600;
+  this.nochange_timeout = args.nochange_timeout || 600;
   if (eventName === 'push') {
     this.branch = path.basename(args.ref);
     this.cloneURL = args.repository.clone_url;
@@ -53,7 +54,8 @@ Project.prototype.createSlave = function(script, cb) {
   data.name = instanceName;
   data.disks[0].deviceName = 'slave-disk';
   data.disks[0].initializeParams.sourceImage = 'global/images/slave'; // Created with 'createSnapshot.js'
-  data.metadata.items[0].value = script.script.replace('$', '\\$');
+  //data.metadata.items[0].value = script.script.replace('$', '\\$');
+  data.metadata.items[0].value = script.script;///.replace('$', '\\$');
   var sivartSlave = new Instance(Auth.projectId, this.zone, instanceName);
   sivartSlave.create({ instance: data }, function(err) { // , resp) {
     if (err) {

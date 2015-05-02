@@ -9,7 +9,8 @@ var repos = {
       clone_url: 'https://github.com/angular/angular.git' 
     },
     keepVM: 1,  // for debugging
-    timeout: 60
+    timeout: 60,
+    nochange_timeout: 10
   },
   angular: {
     ref: 'master',
