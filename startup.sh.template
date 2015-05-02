@@ -1,6 +1,5 @@
 #! /bin/bash
 
-USER_SCRIPT=/tmp/user-script.sh
 USER_LOG=/tmp/user-script.log
 function timedout() {
   TIMEOUT_LOG=/tmp/sivart/logs/timeout.log
@@ -13,9 +12,9 @@ read -d '' SCRIPT <<'EOF'
 USER_SCRIPT
 EOF
 
-echo "$SCRIPT" > $USER_SCRIPT
+echo "$SCRIPT" > /tmp/user-script.sh
 
 echo '----------- START USER SCRIPT ---------------'
 #su -l sivart -c "/bin/bash /tmp/user-script" 2>&1 | tee /tmp/user-script.log
-( (sleep TIMEOUT; timedout) & exec su -l sivart -c "/bin/bash $USER_SCRIPT" 2>&1 | tee $USER_LOG )
+( (sleep TIMEOUT; timedout) & exec su -l sivart -c "/bin/bash /tmp/user-script.sh" 2>&1 | tee $USER_LOG )
 echo '----------- END USER SCRIPT -----------------'
