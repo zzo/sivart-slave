@@ -33,8 +33,8 @@ function runCommand() {
   logf=$SIVART_BASE_LOG_DIR/$timestamp
   echo "--SIVART START: $1: $timestamp: `date`" | tee $logf
   eval $1 >> $logf 2>&1
-  end=`date +"%s"`
   keep=$?
+  end=`date +"%s"`
   len=$((end - start))
   if [[ $keep -gt 0 ]] 
     then
