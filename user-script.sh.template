@@ -28,26 +28,27 @@ function deleteInstance() {
 }
 
 function runCommand() {
-  timestamp=`date +"%s.%N"`
+  baselogfile=`date +"%s.%N"`.log
   start=`date +"%s"`
-  logf=$SIVART_BASE_LOG_DIR/$timestamp
-  echo "--SIVART START: $1: $timestamp: `date`" | tee $logf
+  logf=$SIVART_BASE_LOG_DIR/$baselogfile
+  echo "--COMMAND START: $1: $logf: `date`" | tee $logf
   eval $1 >> $logf 2>&1
   keep=$?
   end=`date +"%s"`
   len=$((end - start))
   if [[ $keep -gt 0 ]] 
     then
-    echo "--SIVART FAILED: $1: $keep: $len seconds" | tee -a $logf
-    echo "$1" > $SIVART_BASE_LOG_DIR/failed
-    echo "$timestamp" >> $SIVART_BASE_LOG_DIR/failed
-    echo "$keep" >> $SIVART_BASE_LOG_DIR/failed
-    echo "$end" >> $SIVART_BASE_LOG_DIR/failed
-    echo "$len" >> $SIVART_BASE_LOG_DIR/failed
+    echo "--COMMAND FAILED: $1: $keep: $len seconds" | tee -a $logf
+    echo "command: $1" > $SIVART_BASE_LOG_DIR/failed
+    echo "log file: $logf" >> $SIVART_BASE_LOG_DIR/failed
+    echo "exit code: $keep" >> $SIVART_BASE_LOG_DIR/failed
+    echo "start time: `date -d @$start`" >> $SIVART_BASE_LOG_DIR/failed
+    echo "end time: `date -d @$end`" >> $SIVART_BASE_LOG_DIR/failed
+    echo "command ran for: $len seconds" >> $SIVART_BASE_LOG_DIR/failed
     saveLogs
-    exit $keep
+    deleteInstance
   else 
-    echo "--SIVART SUCCEEDED: $1: $len seconds" | tee -a $logf
+    echo "--COMMAND SUCCEEDED: $1: $len seconds" | tee -a $logf
   fi
 #  cat $logf  # Drop output here when done or keep this file clean?
 } 
