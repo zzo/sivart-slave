@@ -16,5 +16,5 @@ echo "$SCRIPT" > /tmp/user-script.sh
 
 echo '----------- START USER SCRIPT ---------------'
 #su -l sivart -c "/bin/bash /tmp/user-script" 2>&1 | tee /tmp/user-script.log
-( (sleep TIMEOUT; timedout) & exec su -l sivart -c "/bin/bash /tmp/user-script.sh" 2>&1 | tee $USER_LOG )
+( (sleep SIVART_TIMEOUT; timedout) & exec su -l sivart -c "/bin/bash /tmp/user-script.sh" 2>&1 | tee $USER_LOG )
 echo '----------- END USER SCRIPT -----------------'
