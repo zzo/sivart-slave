@@ -37,7 +37,7 @@ function handleResults(hrerr, files, nextQuery) {
                   console.log('error decompressing:');
                   console.log(execerr);
                 } else {
-                  console.log('Restored cache directory: ' + path.basename(tmpPath));
+                  console.log('Restored cache directory from ' + path.basename(tmpPath));
                 }
             }
           );
