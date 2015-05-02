@@ -16,6 +16,7 @@ function Project(eventName, args) {
   this.eventName = eventName;
   this.keepVM = args.keepVM;
   this.github = args;
+  this.timeout = args.timeout || 3600;
   if (eventName === 'push') {
     this.branch = path.basename(args.ref);
     this.cloneURL = args.repository.clone_url;

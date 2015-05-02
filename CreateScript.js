@@ -205,8 +205,8 @@ CreateScript.prototype.getScripts = function(cb) {
       var done = [];
       scripts.forEach(function(script) {
         var template = fs.readFileSync(path.join(__dirname, 'startup.sh.template'), 'utf8');
-        var startupScript = template.replace('USER_SCRIPT', script.script.join("\n"));
-        startupScript = startupScript.replace('SIVART_TIMEOUT', me.timeout);
+        var startupScript = template.replace('SIVART_USER_SCRIPT', script.script.join("\n"));
+        startupScript = startupScript.replace(/SIVART_TIMEOUT/g, me.timeout);
         done.push({script: startupScript, metadata: script.metadata});
       });
       cb(null, done);
