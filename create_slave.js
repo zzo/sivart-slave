@@ -8,7 +8,8 @@ var repos = {
       full_name: 'zzo/angular', 
       clone_url: 'https://github.com/angular/angular.git' 
     },
-    keepVM: 1  // for debugging
+    keepVM: 1,  // for debugging
+    timeout: 60
   },
   angular: {
     ref: 'master',

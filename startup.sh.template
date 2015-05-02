@@ -1,11 +1,21 @@
 #! /bin/bash
 
+USER_SCRIPT=/tmp/user-script.sh
+USER_LOG=/tmp/user-script.log
+function timedout() {
+  TIMEOUT_LOG=/tmp/sivart/logs/timeout.log
+  ps auxw | grep sivart | grep -v '^root' | grep -v grep > $TIMEOUT_LOG
+  nodejs /usr/local/sivart-slave/saveLogs.js $USER_LOG
+  nodejs /usr/local/slivart-slave/deleteInstance.js
+}
+
 read -d '' SCRIPT <<'EOF'
 USER_SCRIPT
 EOF
 
-echo "$SCRIPT" > /tmp/user-script
+echo "$SCRIPT" > $USER_SCRIPT
 
 echo '----------- START USER SCRIPT ---------------'
-su -l sivart -c "/bin/bash /tmp/user-script" 2>&1 | tee /tmp/user-script.log
+#su -l sivart -c "/bin/bash /tmp/user-script" 2>&1 | tee /tmp/user-script.log
+( (sleep TIMEOUT; timedout) & exec su -l sivart -c "/bin/bash $USER_SCRIPT" 2>&1 | tee $USER_LOG )
 echo '----------- END USER SCRIPT -----------------'

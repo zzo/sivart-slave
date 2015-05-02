@@ -17,6 +17,7 @@ function CreateScript(args) {
   this.createSnapshot = args.createSnapshot;
 
   this.keepVM = args.keepVM
+  this.timeout = args.timeout || 3600;  // how long to wait before timing out the user script
 }
 
 CreateScript.prototype.getYML = function(cb) {
@@ -132,13 +133,13 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
     lines = this.addLines('Store Directories in Cache', cacheLines, lines);
   }
 
-  lines = this.addLines('Save Logs', ['saveLogs'], lines);
-
   lines = lines.concat([
     'endTimestamp=`date +"%s"`',
     'totalTime=$((endTimestamp - startTimestamp))',
     'echo Total time is $totalTime seconds'
   ]);
+
+  lines = this.addLines('Save Logs', ['saveLogs'], lines);
 
   if (!this.keepVM) {
     lines = this.addLines('Delete VM', ['deleteInstance'], lines);
@@ -205,6 +206,7 @@ CreateScript.prototype.getScripts = function(cb) {
       scripts.forEach(function(script) {
         var template = fs.readFileSync(path.join(__dirname, 'startup.sh.template'), 'utf8');
         var startupScript = template.replace('USER_SCRIPT', script.script.join("\n"));
+        startupScript = startupScript.replace('TIMEOUT', this.timeout);
         done.push({script: startupScript, metadata: script.metadata});
       });
       cb(null, done);

@@ -6,6 +6,7 @@
     "type": "git",
     "url": "https://github.com/zzo/sivart-slave.git"
   },
+  "author": "Mark Ethan Trostler <mark@zzo.com>",
   "dependencies": {
     "gcloud": "^0.13.2",
     "googleapis": "^2.0.2",
