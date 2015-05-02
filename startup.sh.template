@@ -6,7 +6,7 @@ function timedout() {
   echo Timed out after SIVART_TIMEOUT seconds > $TIMEOUT_LOG
   ps auxw | grep sivart | grep -v '^root' | grep -v grep >> $TIMEOUT_LOG
   nodejs /usr/local/sivart-slave/saveLogs.js $USER_LOG
-  nodejs /usr/local/slivart-slave/deleteInstance.js
+#  nodejs /usr/local/slivart-slave/deleteInstance.js
 }
 
 read -d '' SCRIPT <<'EOF'
