@@ -16,7 +16,6 @@ ln -s /usr/bin/nodejs /usr/bin/node
 ###
 # Start Xvfb ghetto-style
 ###
-/usr/bin/Xvfb :99 -screen 0 1280x1024x24 &
 touch /etc/init.d/xvfb ## Fake out travis scripts
 
 ###

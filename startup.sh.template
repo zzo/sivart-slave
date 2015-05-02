@@ -1,5 +1,8 @@
 #! /bin/bash
 
+# Start xvfb
+/usr/bin/Xvfb :99 -screen 0 1280x1024x24 &
+
 USER_LOG=/tmp/user-script.log
 function timedout() {
   TIMEOUT_LOG=/tmp/sivart/logs/timeout.log

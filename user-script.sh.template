@@ -2,8 +2,10 @@ SIVART_BASE_LOG_DIR=/tmp/sivart/logs
 mkdir -p $SIVART_BASE_LOG_DIR
 SIVART_SLAVE=/usr/local/sivart-slave
 
+# For xvfb
+export DISPLAY=:99
+
 # Used for caching and logging and other utilities
-#git clone https://github.com/zzo/sivart-slave $SIVART_SLAVE > /tmp/sivart-slave.log 2>&1
 pushd $SIVART_SLAVE > /dev/null 2>&1
 git pull >> /tmp/sivart-slave.log 2>&1
 npm install >> /tmp/sivart-slave.log 2>&1
@@ -45,7 +47,10 @@ function runCommand() {
     echo "end time: `date -d @$end`" >> $SIVART_BASE_LOG_DIR/failed
     echo "command ran for: $len seconds" >> $SIVART_BASE_LOG_DIR/failed
     saveLogs
-    deleteInstance
+    if [[ SIVART_KEEP_VM -eq 0 ]]
+      then
+      deleteInstance
+    fi
   else 
     echo "--COMMAND SUCCEEDED: $1: $len seconds" | tee -a $logf
   fi

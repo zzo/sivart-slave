@@ -16,7 +16,7 @@ function CreateScript(args) {
   this.metadata = args.metadata;
   this.createSnapshot = args.createSnapshot;
 
-  this.keepVM = args.keepVM
+  this.keepVM = args.keepVM;
   this.timeout = args.timeout || 3600;  // how long to wait before timing out the user script
   this.nochange_timeout = args.nochange_timeout || 600;  // how long to wait before timing out after no output
 }
@@ -209,6 +209,11 @@ CreateScript.prototype.getScripts = function(cb) {
         var startupScript = template.replace('SIVART_USER_SCRIPT', script.script.join("\n"));
         startupScript = startupScript.replace(/SIVART_TIMEOUT/g, me.timeout);
         startupScript = startupScript.replace(/SIVART_KILL_AFTER_NO_CHANGE/g, me.nochange_timeout);
+        if (me.keepVM) {
+          startupScript = startupScript.replace(/SIVART_KEEP_VM/g, '1');
+        } else {
+          startupScript = startupScript.replace(/SIVART_KEEP_VM/g, '0');
+        }
         done.push({script: startupScript, metadata: script.metadata});
       });
       cb(null, done);
