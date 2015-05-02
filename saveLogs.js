@@ -20,5 +20,4 @@ storage.createBucket(hostname, function(err, bucket) {
   fs.createReadStream('/tmp/user-script.sh').pipe(bucket.file('user-script.sh').createWriteStream());
   fs.createReadStream('/tmp/user-script.log').pipe(bucket.file('user-script.log').createWriteStream());
   fs.createReadStream('/var/log/startupscript.log').pipe(bucket.file('startupscript.log').createWriteStream());
-  fs.createReadStream('/var/run/google.startup.script').pipe(bucket.file('google.startup.script').createWriteStream());
 })

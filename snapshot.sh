@@ -35,7 +35,6 @@ adduser --disabled-password --disabled-login --gecos "" sivart
 ## So these can be saved off later by 'sivart' user
 touch /tmp/user-script.log
 chmod 777 /tmp/user-script.log
-chmod 777 /var/log/startupscript.log /var/run/google.startup.script
 
 git clone https://github.com/zzo/sivart-slave.git /usr/local/sivart-slave
 pushd /usr/local/sivart-slave
