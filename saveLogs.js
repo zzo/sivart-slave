@@ -11,8 +11,7 @@ var logDir = process.argv[2];
 // Store files
 storage.createBucket(hostname, function(err, bucket) {
   if (err) {
-    console.log(err);
-    return;
+    bucket = storage.bucket(hostname);
   }
   var files = fs.readdirSync(logDir);
   files.forEach(function(file) {
