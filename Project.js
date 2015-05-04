@@ -17,7 +17,7 @@ function Project(eventName, args) {
   this.keepVM = args.keepVM;
   this.github = args;
   this.timeout = args.timeout || 3600;
-  this.nochange_timeout = args.nochange_timeout || 600;
+  this.nochangeTimeout = args.nochangeTimeout || 600;
 
   this.repoName = args.repository.full_name;
   this.cloneURL = args.repository.clone_url;
@@ -67,8 +67,8 @@ Project.prototype.createSlave = function(script, cb) {
   data.name = instanceName;
   data.disks[0].deviceName = 'slave-disk';
   data.disks[0].initializeParams.sourceImage = 'global/images/slave'; // Created with 'createSnapshot.js'
-  //data.metadata.items[0].value = script.script.replace('$', '\\$');
-  data.metadata.items[0].value = script.script;///.replace('$', '\\$');
+  // data.metadata.items[0].value = script.script.replace('$', '\\$');
+  data.metadata.items[0].value = script.script; // .replace('$', '\\$');
   var sivartSlave = new Instance(Auth.projectId, this.zone, instanceName);
   sivartSlave.create({ instance: data }, function(err) { // , resp) {
     if (err) {
@@ -126,6 +126,8 @@ Project.prototype.initialSave = function(errors, instances, cb) {
       return v;
     }
   }));
+  console.log('Saving: json:');
+  console.log(require('util').inspect(github, { showHidden: true, depth: null }));
 
   dataset.save({ key: key, data: { errors: errors, instances: instances, github: github }}, function(err) { // , r) {
     if (err) {

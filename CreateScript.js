@@ -23,7 +23,7 @@ function CreateScript(args) {
 
   this.keepVM = args.keepVM;
   this.timeout = args.timeout || 3600;  // how long to wait before timing out the user script
-  this.nochange_timeout = args.nochange_timeout || 600;  // how long to wait before timing out after no output
+  this.nochangeTimeout = args.nochangeTimeout || 600;  // how long to wait before timing out after no output
 }
 
 CreateScript.prototype.getYML = function(cb) {
@@ -230,7 +230,7 @@ CreateScript.prototype.getScripts = function(cb) {
         var template = fs.readFileSync(path.join(__dirname, 'startup.sh.template'), 'utf8');
         var startupScript = template.replace('SIVART_USER_SCRIPT', script.script.join("\n"));
         startupScript = startupScript.replace(/SIVART_TIMEOUT/g, me.timeout);
-        startupScript = startupScript.replace(/SIVART_KILL_AFTER_NO_CHANGE/g, me.nochange_timeout);
+        startupScript = startupScript.replace(/SIVART_KILL_AFTER_NO_CHANGE/g, me.nochangeTimeout);
         if (me.keepVM) {
           startupScript = startupScript.replace(/SIVART_KEEP_VM/g, '1');
         } else {

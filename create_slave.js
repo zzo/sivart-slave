@@ -10,7 +10,7 @@ var repos = {
     },
 //    keepVM: 1,  // for debugging
 //    timeout: 60,
-//    nochange_timeout: 10
+//    nochangeTimeout: 10
   },
   angular: {
     ref: 'master',
