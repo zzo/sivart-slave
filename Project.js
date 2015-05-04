@@ -28,11 +28,14 @@ function Project(eventName, args) {
   } else { // PR
     this.pr = args.number;
     this.action = args.action; // 'synchronize' or 'closed' or 'unlabeled'
+    /*
+     * probably only want opened/closed/synchronized?
     if (action == 'opened' || action == 'closed' || action == 'synchronized') {
       // ...
     } else {
       return null;
     }
+    */
   }
 
   this.createScript = new CreateScript(this);
