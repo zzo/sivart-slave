@@ -21,6 +21,7 @@ function handleResults(hrerr, files, nextQuery) {
   if (hrerr) {
     console.log('Error getting cached directory:');
     console.log(hrerr);
+    return;
   }
 
   // Extract results
