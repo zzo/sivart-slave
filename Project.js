@@ -63,8 +63,7 @@ Project.prototype.createScripts = function(cb) {
 
 Project.prototype.createSlave = function(script, cb) {
   var me = this;
-  var safeName = this.repoName.replace(/\//g, '-');
-  var instanceName = [safeName, uuid.v1()].join('-');
+  var instanceName = uuid.v1();
   var data = JSON.parse(fs.readFileSync(this.slaveFile));
   data.name = instanceName;
   data.disks[0].deviceName = 'slave-disk';
