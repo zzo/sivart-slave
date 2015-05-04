@@ -6,6 +6,7 @@ var Auth = require('sivart-GCE/Auth');
 var os = require('os');
 var printf = require('util').format;
 var exec = require('child_process').exec;
+var nodeVersion = fs.readFileSync('/tmp/sivart/logs/nodejs.version', 'utf8').replace(/(\n|\r)+$/, '');
 
 // Get info
 var cacheDir = process.argv[2];
@@ -16,7 +17,7 @@ var gcloud = require('gcloud');
 var storage = gcloud.storage(Auth);
 
 var safeDir = cacheDir.replace(/\//g, '-');
-var tarFile = path.join(os.tmpdir(), printf('cache-%s.tar', safeDir));
+var tarFile = path.join(os.tmpdir(), printf('cache-%s-%s.tar', nodeVersion, safeDir));
 var lzoFile = tarFile + '.lzo';
 var baseName = path.basename(lzoFile);
 

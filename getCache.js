@@ -1,9 +1,11 @@
 'use strict';
 
 var path = require('path');
+var fs = require('fs');
 var os = require('os');
 var Auth = require('sivart-GCE/Auth');
 var printf = require('util').format;
+var nodeVersion = fs.readFileSync('/tmp/sivart/logs/nodejs.version', 'utf8').replace(/(\n|\r)+$/, '');
 
 // Get info
 var repoName = process.argv[2];
@@ -59,5 +61,5 @@ storage.createBucket(bucketname, function(err, bucket) {
   }
 
   // Get all the cache files for this repo+branch combination
-  bucket.getFiles({prefix: 'cache-'}, handleResults);
+  bucket.getFiles({prefix: 'cache-' + nodeVersion }, handleResults);
 });

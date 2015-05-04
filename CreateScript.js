@@ -31,7 +31,6 @@ CreateScript.prototype.getYML = function(cb) {
   var yaml = require('js-yaml');
   var request = http.get(this.yamlURL,
     function(response) {
-      console.log("GET YML: " + response.statusCode);
       if (response.statusCode === 404) {
         // No .travis.yml file - use defaults
         cb(null, {
@@ -207,7 +206,7 @@ CreateScript.prototype.createScripts = function(cb) {
         yml.env.matrix.forEach(function(matrix) {
           // start with a new templateLines each time
           var lines = me.addLines('Matrix', [
-            matrix,
+            'export ' + matrix,
             printf("echo %s > $SIVART_BASE_LOG_DIR/matrix", matrix)
             ], getTemplateLines());
           var lines = me.addNodeJS(lines, node_js);
