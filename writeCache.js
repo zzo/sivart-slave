@@ -46,10 +46,13 @@ storage.createBucket(bucketname, function(cberr, bucket) {
         //    if hash values are different
         var uncompressedSize = fs.lstatSync(tarFile).size;
         bucket.getFiles({prefix: baseName}, function handleResults(gferr, files) {
-          if (gferr || !files[0]) {
+          console.log(gferr || 'cache file does not exist: ' + baseName);
+          if (gferr || !files || !files[0]) {
+            if (!files) {
+              files = [];
+            }
             files[0] = bucket.file(baseName);
             files[0].metadata.metadata = {};
-            console.log(gferr || 'cache file does not exist: ' + baseName);
           }
           if (files[0]) {
             if (files[0].metadata.metadata.uncompressedSize !== String(uncompressedSize)) {
