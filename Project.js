@@ -27,7 +27,7 @@ function Project(eventName, args) {
   if (eventName === 'push') {
     this.branch = path.basename(args.ref);
     this.commit = args.after;
-  } else { // PR
+  } else if (eventName === 'pull_request') { // PR
     this.pr = args.number;
     this.action = args.action; // 'synchronize' or 'closed' or 'unlabeled'
     /*
@@ -38,6 +38,8 @@ function Project(eventName, args) {
       return null;
     }
     */
+  } else {
+    throw new Error('Cannot handle ' + eventName);
   }
 
   this.createScript = new CreateScript(this);
@@ -62,7 +64,7 @@ Project.prototype.createScripts = function(cb) {
 Project.prototype.createSlave = function(script, cb) {
   var me = this;
   var safeName = this.repoName.replace(/\//g, '-');
-  var instanceName = [safeName, this.eventName, uuid.v1()].join('-');
+  var instanceName = [safeName, uuid.v1()].join('-');
   var data = JSON.parse(fs.readFileSync(this.slaveFile));
   data.name = instanceName;
   data.disks[0].deviceName = 'slave-disk';
