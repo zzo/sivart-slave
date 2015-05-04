@@ -113,6 +113,7 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
   if (this.eventName == 'push') {
     lines = this.addLines('GIT Push', [
       printf('git clone --depth=50 --branch=%s %s', this.branch, this.cloneURL, this.repoName),
+      printf('cd %s', this.repoName),
       printf('git checkout -qf %s', this.commit),
       'export TRAVIS_PULL_REQUEST=false',
       printf('export SIVART_REPO_BRANCH=%s', this.branch)
@@ -120,6 +121,7 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
   } else {
     lines = this.addLines('GIT Pull Request', [
       printf('git clone --depth=50 %s', this.cloneURL, this.repoName),
+      printf('cd %s', this.repoName),
       printf('git fetch origin +refs/pull/%d/merge:', this.pr),
       'git checkout -qf FETCH_HEAD',
       printf('export TRAVIS_PULL_REQUEST=', this.pr),
