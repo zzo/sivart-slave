@@ -118,15 +118,19 @@ Project.prototype.initialSave = function(errors, instances, cb) {
   var keyKind = this.eventName;
   var key = dataset.key({ namespace: safeName, path: [ keyKind ] });
 
-  // Datasets don't like nulls in them - replace with empty strings
   var github = JSON.parse(JSON.stringify(this.github, function(k, v) {
     if (!v) {
+      // Datasets don't like nulls in them - replace with empty strings
       return '';
+    } else if (v instanceof Object && !Object.keys(v).length) {
+      // Datasets also don't like empty objects!
+      return ''; // or maybe { ____iamempty: 0 }?
     } else {
       return v;
     }
   }));
-  console.log('Saving: json:');
+
+  console.log('Saving: github request:');
   console.log(require('util').inspect(github, { showHidden: true, depth: null }));
 
   dataset.save({ key: key, data: { errors: errors, instances: instances, github: github }}, function(err) { // , r) {
