@@ -12,14 +12,14 @@ function CreateScript(args) {
   this.cloneURL = args.cloneURL;
   this.yamlURL = args.yamlURL;
   this.commit = args.commit;
-  this.branch = args.branch;
+  this.branch = args.branch || '';
   this.metadata = args.metadata;
   this.createSnapshot = args.createSnapshot;
   this.eventName = args.eventName;
 
   // For Pull Requests
-  this.pr = args.pr;
-  this.action = args.action;
+  this.pr = args.pr || '';
+  this.action = args.action || '';
 
   this.keepVM = args.keepVM;
   this.timeout = args.timeout || 3600;  // how long to wait before timing out the user script
@@ -101,26 +101,29 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
     "echo ${METADATA} > $SIVART_BASE_LOG_DIR/metadata"
   ], lines, 'error');
 
-  // Git clone
-  lines = this.addLines('GIT', [
-    printf('git clone --depth=50 --branch=%s %s', this.branch, this.cloneURL, this.repoName),
-    printf('cd %s', this.repoName),
-    printf('export SIVART_REPO_NAME=%s', this.repoName),
-    printf('export SIVART_REPO_BRANCH=%s', this.branch)
-    ], lines, 'error');
-
   if (this.eventName == 'push') {
     lines = this.addLines('GIT Push', [
+      printf('git clone --depth=50 --branch=%s %s', this.branch, this.cloneURL, this.repoName),
       printf('git checkout -qf %s', this.commit),
-      'export TRAVIS_PULL_REQUEST=false'
+      'export TRAVIS_PULL_REQUEST=false',
+      printf('export SIVART_REPO_BRANCH=%s', this.branch)
     ], lines, 'error');
   } else {
     lines = this.addLines('GIT Pull Request', [
+      printf('git clone --depth=50 %s', this.cloneURL, this.repoName),
       printf('git fetch origin +refs/pull/%d/merge:', this.pr),
       'git checkout -qf FETCH_HEAD',
-      printf('export TRAVIS_PULL_REQUEST=', this.pr)
+      printf('export TRAVIS_PULL_REQUEST=', this.pr),
+      printf('export SIVART_PULL_REQUEST=', this.pr),
+      'export SIVART_REPO_BRANCH=master'
     ], lines, 'error');
   }
+
+  // Git clone
+  lines = this.addLines('GIT', [
+    printf('cd %s', this.repoName),
+    printf('export SIVART_REPO_NAME=%s', this.repoName),
+    ], lines, 'error');
 
   // Global env variables
   if (yml.env && yml.env.global) {
@@ -209,6 +212,8 @@ CreateScript.prototype.getMetadata = function(node_js, matrix) {
     name: this.repoName,
     commit: this.commit,
     branch: this.branch,
+    pr: this.pr,
+    action: this.action,
     node_js: node_js,
     matrix: matrix
   };

@@ -18,13 +18,15 @@ function Project(eventName, args) {
   this.github = args;
   this.timeout = args.timeout || 3600;
   this.nochange_timeout = args.nochange_timeout || 600;
+
+  this.repoName = args.repository.full_name;
+  this.cloneURL = args.repository.clone_url;
+  this.yamlURL = printf('https://raw.githubusercontent.com/%s/%s/.travis.yml', this.repoName, this.branch || 'master');
+  this.metadata = { eventName: eventName, message: args };
+
   if (eventName === 'push') {
     this.branch = path.basename(args.ref);
-    this.cloneURL = args.repository.clone_url;
-    this.repoName = args.repository.full_name;
-    this.yamlURL = printf('https://raw.githubusercontent.com/%s/%s/.travis.yml', this.repoName, this.branch);
     this.commit = args.after;
-    this.metadata = { eventName: eventName, message: args };
   } else { // PR
     this.pr = args.number;
     this.action = args.action; // 'synchronize' or 'closed' or 'unlabeled'
