@@ -31,19 +31,27 @@ CreateScript.prototype.getYML = function(cb) {
   var yaml = require('js-yaml');
   var request = http.get(this.yamlURL,
     function(response) {
-      response.setEncoding('utf8');
-      var data = '';
-      response.on('data', function(chunk) {
-        data += chunk;
-      });
-      response.on('end', function() {
-        try {
-          var yml = yaml.safeLoad(data);
-          cb(null, yml);
-        } catch (e) {
-          cb(e);
-        }
-      });
+      if (response.statusCode === 404) {
+        // No .travis.yml file - use defaults
+        cb(null, {
+          script: [ 'npm test' ],
+          node_js: [ '0.10' ]
+        });
+      } else {
+        response.setEncoding('utf8');
+        var data = '';
+        response.on('data', function(chunk) {
+          data += chunk;
+        });
+        response.on('end', function() {
+          try {
+            var yml = yaml.safeLoad(data);
+            cb(null, yml);
+          } catch (e) {
+            cb(e);
+          }
+        });
+      }
     }
   );
 };
@@ -75,6 +83,9 @@ CreateScript.prototype.addLines = function(section, newLines, existingLines, sta
 
 CreateScript.prototype.addNodeJS = function(lines, nodejs) {
   // NVM
+  if (!node_js) {
+    node_js = '0.10';
+  }
   lines = this.addLines('NVM', [
     'curl https://raw.githubusercontent.com/creationix/nvm/v0.25.0/install.sh | sh',
     'source ~/.nvm/nvm.sh',
@@ -137,13 +148,29 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
   }
 
   // Other stuff
-  lines = this.addLines('Before Install', yml.before_install, lines, 'error');
-  lines = this.addLines('Install', yml.install, lines, 'error');
-  lines = this.addLines('After Install', yml.after_install, lines, 'error');
+  if (yml.before_install) {
+    lines = this.addLines('Before Install', yml.before_install, lines, 'error');
+  }
 
-  lines = this.addLines('Before Script', yml.before_script, lines, 'error');
-  lines = this.addLines('Script', yml.script, lines, 'fail');
-  lines = this.addLines('After Script', yml.after_script, lines);
+  if (yml.install) {
+    lines = this.addLines('Install', yml.install, lines, 'error');
+  }
+
+  if (yml.after_install) {
+    lines = this.addLines('After Install', yml.after_install, lines, 'error');
+  }
+
+  if (yml.before_script) {
+    lines = this.addLines('Before Script', yml.before_script, lines, 'error');
+  }
+
+  if (yml.script) {
+    lines = this.addLines('Script', yml.script, lines, 'fail');
+  }
+
+  if (yml.after_script) {
+    lines = this.addLines('After Script', yml.after_script, lines);
+  }
 
   // Save Cache
   if (yml.cache && yml.cache.directories) {
@@ -174,7 +201,7 @@ CreateScript.prototype.createScripts = function(cb) {
   this.getYML(function(err, yml) {
     if (err) {
       cb(err);
-    } else if (yml.env.matrix) {
+    } else if (yml.env && yml.env.matrix) {
       var i = 0;
       yml.node_js.forEach(function(node_js) {
         yml.env.matrix.forEach(function(matrix) {
