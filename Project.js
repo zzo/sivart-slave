@@ -86,7 +86,7 @@ Project.prototype.createAllSlaves = function(cb) {
   var me = this;
   this.createScripts(function(cserr, scripts) {
     if (cserr) {
-      cb(cserr);
+      cb([cserr]);
     } else {
       var done = 0;
       var errors = [];

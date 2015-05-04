@@ -31,6 +31,7 @@ CreateScript.prototype.getYML = function(cb) {
   var yaml = require('js-yaml');
   var request = http.get(this.yamlURL,
     function(response) {
+      console.log("GET YML: " + response.statusCode);
       if (response.statusCode === 404) {
         // No .travis.yml file - use defaults
         cb(null, {
@@ -83,9 +84,6 @@ CreateScript.prototype.addLines = function(section, newLines, existingLines, sta
 
 CreateScript.prototype.addNodeJS = function(lines, nodejs) {
   // NVM
-  if (!node_js) {
-    node_js = '0.10';
-  }
   lines = this.addLines('NVM', [
     'curl https://raw.githubusercontent.com/creationix/nvm/v0.25.0/install.sh | sh',
     'source ~/.nvm/nvm.sh',
