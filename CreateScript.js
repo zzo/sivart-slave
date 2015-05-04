@@ -66,7 +66,7 @@ CreateScript.prototype.addLines = function(section, newLines, existingLines, sta
         command = command.replace(/\\\\"$/, '"');
       }
       state = state || 'ignore';
-      existingLines.push(printf("runCommand '%s' '%s'", command, state);
+      existingLines.push(printf("runCommand '%s' '%s'", command, state));
     });
   }
   existingLines.push(printf('echo "------ END %s ----------------"', section));
@@ -104,10 +104,10 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
   // Git clone
   lines = this.addLines('GIT', [
     printf('git clone --depth=50 --branch=%s %s', this.branch, this.cloneURL, this.repoName),
-    printf('cd %s', this.repoName)
+    printf('cd %s', this.repoName),
     printf('export SIVART_REPO_NAME=%s', this.repoName),
-    printf('export SIVART_REPO_BRANCH=%s', this.branch), lines, 'error');
-  ]);
+    printf('export SIVART_REPO_BRANCH=%s', this.branch)
+    ], lines, 'error');
 
   if (this.eventName == 'push') {
     lines = this.addLines('GIT Push', [
