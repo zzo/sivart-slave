@@ -74,7 +74,7 @@ Project.prototype.createSlave = function(script, cb) {
   var sivartSlave = new Instance(Auth.projectId, this.zone, instanceName);
   sivartSlave.create({ instance: data }, function(err) { // , resp) {
     if (err) {
-      cb('ERROR creating instance:' + err);
+      cb(err);
     } else {
       script.metadata.created = new Date().getTime();
       me.slaves[instanceName] = script.metadata;

@@ -131,7 +131,6 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
 
   // Git clone
   lines = this.addLines('GIT', [
-    printf('cd %s', this.repoName),
     printf('export SIVART_REPO_NAME=%s', this.repoName),
     ], lines, 'error');
 
