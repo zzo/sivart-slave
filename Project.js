@@ -39,7 +39,7 @@ function Project(eventName, args) {
     }
     */
   } else {
-    throw new Error('Cannot handle ' + eventName);
+    throw new Error('I do not handle github event: ' + eventName);
   }
 
   this.createScript = new CreateScript(this);
