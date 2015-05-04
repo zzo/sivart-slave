@@ -63,8 +63,8 @@ Project.prototype.createScripts = function(cb) {
 
 Project.prototype.createSlave = function(script, cb) {
   var me = this;
-  var safeName = this.repoName.replace(/[^0-9a-zA-Z-]/g, '-');
-  var instanceName = [new Date().getTime(), uuid.v4(), safeName].join('-').slice(0,63);
+  // Instance names must match: /^(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)$/
+  var instanceName = ['x', new Date().getTime(), uuid.v4()].join('-').slice(0, 63);
   var data = JSON.parse(fs.readFileSync(this.slaveFile));
   data.name = instanceName;
   data.disks[0].deviceName = 'slave-disk';
