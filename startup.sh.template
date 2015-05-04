@@ -15,6 +15,7 @@ function timedout() {
   cat $lastlog >> $TIMEOUT_LOG
   echo $$ >> $TIMEOUT_LOG
   ps auxwww | grep $$ >> $TIMEOUT_LOG
+  env >> $TIMEOUT_LOG
   /usr/bin/nodejs /usr/local/sivart-slave/saveLogs.js /tmp/sivart/logs
   if [[ SIVART_KEEP_VM -eq 0 ]]
     then
@@ -58,4 +59,10 @@ echo "$SCRIPT" > /tmp/user-script.sh
 
 echo '----------- START USER SCRIPT ---------------'
 su -l sivart -c "/bin/bash /tmp/user-script.sh" 2>&1 | tee $USER_LOG
+keep=$?
 echo '----------- END USER SCRIPT -----------------'
+
+## If we get here there must be an explicit 'exit' command in the user stages
+echo User script exited with $keep > /tmp/sivart/logs/user_exit.log
+nodejs /usr/local/sivart-slave/saveLogs.js /tmp/sivart/logs
+nodejs /usr/local/sivart-slave/deleteInstance.js

@@ -15,6 +15,11 @@ function CreateScript(args) {
   this.branch = args.branch;
   this.metadata = args.metadata;
   this.createSnapshot = args.createSnapshot;
+  this.eventName = args.eventName;
+
+  // For Pull Requests
+  this.pr = args.pr;
+  this.action = args.action;
 
   this.keepVM = args.keepVM;
   this.timeout = args.timeout || 3600;  // how long to wait before timing out the user script
@@ -43,7 +48,7 @@ CreateScript.prototype.getYML = function(cb) {
   );
 };
 
-CreateScript.prototype.addLines = function(section, newLines, existingLines) {
+CreateScript.prototype.addLines = function(section, newLines, existingLines, state) {
   existingLines.push(printf('echo "------ START %s ----------------"', section));
   if (newLines) {
     newLines.forEach(function(command) {
@@ -60,7 +65,8 @@ CreateScript.prototype.addLines = function(section, newLines, existingLines) {
         command = command.replace(/\\\\/, '');
         command = command.replace(/\\\\"$/, '"');
       }
-      existingLines.push(printf("runCommand '%s'", command));
+      state = state || 'ignore';
+      existingLines.push(printf("runCommand '%s' '%s'", command, state);
     });
   }
   existingLines.push(printf('echo "------ END %s ----------------"', section));
@@ -76,7 +82,7 @@ CreateScript.prototype.addNodeJS = function(lines, nodejs) {
     printf('nvm install %s', nodejs),
     'node -v > $SIVART_BASE_LOG_DIR/nodejs.version',
     'echo "Using NodeJS version `node -v`"'
-    ], lines);
+    ], lines, 'error');
   return lines;
 }
 
@@ -87,42 +93,53 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
   lines = this.addLines('Git Request', [
     printf('export GITHUB_REQUEST="%s"', JSON.stringify(this.metadata)),
     "echo ${GITHUB_REQUEST} > $SIVART_BASE_LOG_DIR/github.request"
-  ], lines);
+  ], lines, 'error');
 
   // Metadata
   lines = this.addLines('METADATA', [
     printf('export METADATA="%s"', JSON.stringify(metadata)),
     "echo ${METADATA} > $SIVART_BASE_LOG_DIR/metadata"
-  ], lines);
+  ], lines, 'error');
 
   // Git clone
   lines = this.addLines('GIT', [
-    // TODO(trostler) fix this up if testing a PR
     printf('git clone --depth=50 --branch=%s %s', this.branch, this.cloneURL, this.repoName),
-    printf('cd %s', this.repoName),
-    printf('git checkout -qf %s', this.commit),
+    printf('cd %s', this.repoName)
     printf('export SIVART_REPO_NAME=%s', this.repoName),
-    printf('export SIVART_REPO_BRANCH=%s', this.branch)
-  ], lines);
+    printf('export SIVART_REPO_BRANCH=%s', this.branch), lines, 'error');
+  ]);
+
+  if (this.eventName == 'push') {
+    lines = this.addLines('GIT Push', [
+      printf('git checkout -qf %s', this.commit),
+      'export TRAVIS_PULL_REQUEST=false'
+    ], lines, 'error');
+  } else {
+    lines = this.addLines('GIT Pull Request', [
+      printf('git fetch origin +refs/pull/%d/merge:', this.pr),
+      'git checkout -qf FETCH_HEAD',
+      printf('export TRAVIS_PULL_REQUEST=', this.pr)
+    ], lines, 'error');
+  }
 
   // Global env variables
   if (yml.env && yml.env.global) {
     var globals = yml.env.global.map(function(glob) { return printf('export %s', glob) });
-    lines = this.addLines('Globals', globals, lines);
+    lines = this.addLines('Globals', globals, lines, 'error');
   }
 
   // Get Cache
   if (yml.cache && yml.cache.directories) {
-    lines = this.addLines('Get Cached Directories', [ 'getCaches' ], lines);
+    lines = this.addLines('Get Cached Directories', [ 'getCaches' ], lines, 'error');
   }
 
   // Other stuff
-  lines = this.addLines('Before Install', yml.before_install, lines);
-  lines = this.addLines('Install', yml.install, lines);
-  lines = this.addLines('After Install', yml.after_install, lines);
+  lines = this.addLines('Before Install', yml.before_install, lines, 'error');
+  lines = this.addLines('Install', yml.install, lines, 'error');
+  lines = this.addLines('After Install', yml.after_install, lines, 'error');
 
-  lines = this.addLines('Before Script', yml.before_script, lines);
-  lines = this.addLines('Script', yml.script, lines);
+  lines = this.addLines('Before Script', yml.before_script, lines, 'error');
+  lines = this.addLines('Script', yml.script, lines, 'fail');
   lines = this.addLines('After Script', yml.after_script, lines);
 
   // Save Cache

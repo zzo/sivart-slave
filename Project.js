@@ -25,6 +25,14 @@ function Project(eventName, args) {
     this.yamlURL = printf('https://raw.githubusercontent.com/%s/%s/.travis.yml', this.repoName, this.branch);
     this.commit = args.after;
     this.metadata = { eventName: eventName, message: args };
+  } else { // PR
+    this.pr = args.number;
+    this.action = args.action; // 'synchronize' or 'closed' or 'unlabeled'
+    if (action == 'opened' || action == 'closed' || action == 'synchronized') {
+      // ...
+    } else {
+      return null;
+    }
   }
 
   this.createScript = new CreateScript(this);

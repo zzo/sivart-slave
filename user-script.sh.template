@@ -37,19 +37,23 @@ function runCommand() {
   keep=$?
   end=`date +"%s"`
   len=$((end - start))
-  if [[ $keep -gt 0 ]] 
+  if [[ $2 != 'ignore' && $keep -gt 0 ]] 
     then
-    echo "--COMMAND FAILED: $1: $keep: $len seconds" | tee -a $logf
-    echo "command: $1" > $SIVART_BASE_LOG_DIR/failed
-    echo "log file: `basename $logf`" >> $SIVART_BASE_LOG_DIR/failed
-    echo "exit code: $keep" >> $SIVART_BASE_LOG_DIR/failed
-    echo "start time: `date -d @$start`" >> $SIVART_BASE_LOG_DIR/failed
-    echo "end time: `date -d @$end`" >> $SIVART_BASE_LOG_DIR/failed
-    echo "command ran for: $len seconds" >> $SIVART_BASE_LOG_DIR/failed
+    errorlog=$SIVART_BASE_DIR/$2.log
+    echo "--COMMAND $2: $1: $keep: $len seconds" | tee -a $logf
+    echo "command: $1" > $errorlog
+    echo "log file: `basename $logf`" >> $errorlog
+    echo "exit code: $keep" >> $errorlog
+    echo "start time: `date -d @$start`" >> $errorlog
+    echo "end time: `date -d @$end`" >> $errorlog
+    echo "command ran for: $len seconds" >> $errorlog
+    env >> $SIVART_BASE_LOG_DIR/failed
     saveLogs
     if [[ SIVART_KEEP_VM -eq 0 ]]
       then
       deleteInstance
+      else
+        kill -9 $$
     fi
   else 
     echo "--COMMAND SUCCEEDED: $1: $len seconds" | tee -a $logf
