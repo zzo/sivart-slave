@@ -39,7 +39,7 @@ function runCommand() {
   len=$((end - start))
   if [[ $2 != 'ignore' && $keep -gt 0 ]] 
     then
-    errorlog=$SIVART_BASE_DIR/$2.log
+    errorlog=$SIVART_BASE_LOG_DIR/$2.log
     echo "--COMMAND $2: $1: $keep: $len seconds" | tee -a $logf
     echo "command: $1" > $errorlog
     echo "log file: `basename $logf`" >> $errorlog
@@ -47,7 +47,7 @@ function runCommand() {
     echo "start time: `date -d @$start`" >> $errorlog
     echo "end time: `date -d @$end`" >> $errorlog
     echo "command ran for: $len seconds" >> $errorlog
-    env >> $SIVART_BASE_LOG_DIR/failed
+    env >> $errorlog
     saveLogs
     if [[ SIVART_KEEP_VM -eq 0 ]]
       then
