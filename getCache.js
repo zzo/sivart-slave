@@ -59,8 +59,6 @@ function handleResults(hrerr, files, nextQuery) {
 storage.createBucket(bucketname, function(err, bucket) {
 
   if (err) {
-    console.log('error creating bucket');
-    console.log(err);
     // Bucket already exists...
     bucket = storage.bucket(bucketname);
   }

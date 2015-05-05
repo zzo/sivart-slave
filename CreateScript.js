@@ -14,7 +14,7 @@ function CreateScript(args) {
   this.cloneURL = args.cloneURL;
   this.yamlURL = args.yamlURL;
   this.commit = args.commit;
-  this.branch = args.branch || '';
+  this.branch = args.branch || 'master';
   this.metadata = args.metadata;
   this.createSnapshot = args.createSnapshot;
   this.eventName = args.eventName;
@@ -101,7 +101,12 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
   lines.push('startTimestamp=`date +"%s"`');
 
   lines = this.addLines('Travis Emulation', [
-    printf('export TRAVIS_BRANCH=%s', this.branch || 'master'),
+    'export TRAVIS=true',
+    'export CI=true',
+    'export CONTINUOUS_INTEGRATION=true',
+    'export DEBIAN_FRONTEND=noninteractive',
+    'export LC_ALL=en_US.UTF-8',
+    printf('export TRAVIS_BRANCH=%s', this.branch),
     printf('export TRAVIS_BUILD_DIR=`pwd`/%s', this.repoName),
     printf('export TRAVIS_REPO_SLUG=%s', this.repoName),
     printf('export TRAVIS_JOB_NUMBER=`hostname`.%s', buildNumber),

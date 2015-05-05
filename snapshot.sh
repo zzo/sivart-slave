@@ -41,4 +41,6 @@ HOME=/tmp npm install
 chown -R sivart:users /usr/local/sivart-slave
 popd
 
+su -l sivart -c "/bin/bash /tmp/user-script.sh" 2>&1 | tee $USER_LOG
+
 echo __DONE__
