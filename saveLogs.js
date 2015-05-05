@@ -1,3 +1,5 @@
+'use strict';
+
 var fs = require('fs');
 var path = require('path');
 var hostname = require('os').hostname();
@@ -5,8 +7,8 @@ var Auth = require('sivart-GCE/Auth');
 var gcloud = require('gcloud');
 var storage = gcloud.storage(Auth);
 
-//Get metadata
 var logDir = process.argv[2];
+fs.writeFileSync(path.join(logDir, 'environment.json'), JSON.stringify(process.env));
 
 // Store files
 storage.createBucket(hostname, function(err, bucket) {
@@ -20,4 +22,4 @@ storage.createBucket(hostname, function(err, bucket) {
   fs.createReadStream('/tmp/user-script.sh').pipe(bucket.file('user-script.sh').createWriteStream());
   fs.createReadStream('/tmp/user-script.log').pipe(bucket.file('user-script.log').createWriteStream());
   fs.createReadStream('/var/log/startupscript.log').pipe(bucket.file('startupscript.log').createWriteStream());
-})
+});

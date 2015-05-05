@@ -69,7 +69,7 @@ CreateScript.prototype.addLines = function(section, newLines, existingLines, sta
       if (command.match(/TSDRC/)) {
         command = command.replace(/"/g, '\\\\\\\\\\\\"');
       }
-      if (command.match(/GITHUB_REQUEST|METADATA/)) {
+      if (command.match(/SIVART_JSON/)) {
         command = command.replace(/"/g, '\\\\"');
         // get rid of first and last '\\'s
         command = command.replace(/\\\\/, '');
@@ -84,9 +84,8 @@ CreateScript.prototype.addLines = function(section, newLines, existingLines, sta
 };
 
 CreateScript.prototype.addNodeJS = function(lines, nodejs) {
-  // NVM
+  // NVM (already installed in base image)
   lines = this.addLines('NVM', [
-//    'curl https://raw.githubusercontent.com/creationix/nvm/v0.25.0/install.sh | sh',
     'source ~/.nvm/nvm.sh',
     printf('export TRAVIS_NODE_VERSION=%s', nodejs),
     printf('nvm use %s', nodejs),
@@ -97,7 +96,6 @@ CreateScript.prototype.addNodeJS = function(lines, nodejs) {
 };
 
 CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) {
-
   lines.push('startTimestamp=`date +"%s"`');
 
   lines = this.addLines('Travis Emulation', [
@@ -117,16 +115,14 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
     'export TRAVIS_SECURE_ENV_VARS=false'
   ], lines);
 
-  lines = this.addLines('Git Request', [
-    printf('export GITHUB_REQUEST="%s"', JSON.stringify(this.metadata)),
-    'echo ${GITHUB_REQUEST} > $SIVART_BASE_LOG_DIR/github.request'
-  ], lines, 'error');
-
-  // Metadata
-  lines = this.addLines('METADATA', [
-    printf('export METADATA="%s"', JSON.stringify(metadata)),
-    'echo ${METADATA} > $SIVART_BASE_LOG_DIR/metadata'
-  ], lines, 'error');
+  lines = this.addLines('Build metadata', [
+    printf('export SIVART_JSON_GITHUB_REQUEST="%s"', JSON.stringify(this.metadata)),
+    'echo ${SIVART_JSON_GITHUB_REQUEST} > $SIVART_BASE_LOG_DIR/github.request.json',
+    printf('export SIVART_JSON_BUILD_CONFIG="%s"', JSON.stringify(yml)),
+    'echo ${SIVART_JSON_BUILD_CONFIG} > $SIVART_BASE_LOG_DIR/build.config.json',
+    printf('export SIVART_JSON_METADATA="%s"', JSON.stringify(metadata)),
+    'echo ${SIVART_JSON_METADATA} > $SIVART_BASE_LOG_DIR/metadata.json'
+  ], lines);
 
   if (this.eventName === 'push') {
     lines = this.addLines('GIT Push', [
