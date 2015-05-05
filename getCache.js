@@ -16,6 +16,7 @@ var storage = gcloud.storage(Auth);
 
 var safeRepo = repoName.replace(/\//g, '-');
 var bucketname = ['sivart', safeRepo, branch].join('-');
+console.log('bucket name is: ' + bucketname);
 
 function handleResults(hrerr, files, nextQuery) {
   if (hrerr) {
@@ -57,10 +58,13 @@ function handleResults(hrerr, files, nextQuery) {
 storage.createBucket(bucketname, function(err, bucket) {
 
   if (err) {
+    console.log('error creating bucket');
+    console.log(err);
     // Bucket already exists...
     bucket = storage.bucket(bucketname);
   }
 
+console.log('get cache files: cache-' + nodeVersion);
   // Get all the cache files for this repo+branch combination
   bucket.getFiles({prefix: 'cache-' + nodeVersion }, handleResults);
 });
