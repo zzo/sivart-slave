@@ -6,7 +6,7 @@ var Auth = require('sivart-GCE/Auth');
 var os = require('os');
 var printf = require('util').format;
 var exec = require('child_process').exec;
-var nodeVersion = fs.readFileSync('/tmp/sivart/logs/nodejs.version', 'utf8').replace(/(\n|\r)+$/, '');
+var nodeVersion = process.env.TRAVIS_NODE_VERSION;
 
 // Get info
 var cacheDir = process.argv[2];

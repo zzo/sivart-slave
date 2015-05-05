@@ -5,8 +5,7 @@ var fs = require('fs');
 var os = require('os');
 var Auth = require('sivart-GCE/Auth');
 var printf = require('util').format;
-//var nodeVersion = fs.readFileSync('/tmp/sivart/logs/nodejs.version', 'utf8').replace(/(\n|\r)+$/, '');
-var nodeVersion = process.env.TRAVIS_NODE_VERSION;//fs.readFileSync('/tmp/sivart/logs/nodejs.version', 'utf8').replace(/(\n|\r)+$/, '');
+var nodeVersion = process.env.TRAVIS_NODE_VERSION;
 
 // Get info
 var repoName = process.argv[2];
