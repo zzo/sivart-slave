@@ -1,10 +1,12 @@
+'use strict';
+
 var fs = require('fs');
 var path = require('path');
 var template = fs.readFileSync(path.join(__dirname, 'user-script.sh.template'), 'utf8');
 var printf = require('util').format;
 
 function getTemplateLines() {
-  return template.split("\n");
+  return template.split('\n');
 }
 
 function CreateScript(args) {
@@ -29,7 +31,7 @@ function CreateScript(args) {
 CreateScript.prototype.getYML = function(cb) {
   var http = require('https');
   var yaml = require('js-yaml');
-  var request = http.get(this.yamlURL,
+  http.get(this.yamlURL,
     function(response) {
       if (response.statusCode === 404) {
         // No .travis.yml file - use defaults
@@ -74,7 +76,7 @@ CreateScript.prototype.addLines = function(section, newLines, existingLines, sta
         command = command.replace(/\\\\"$/, '"');
       }
       state = state || 'ignore';
-      existingLines.push(printf("runCommand '%s' '%s'", command, state));
+      existingLines.push(printf('runCommand "%s" "%s"', command, state));
     });
   }
   existingLines.push(printf('echo "------ END %s ----------------"', section));
@@ -86,35 +88,48 @@ CreateScript.prototype.addNodeJS = function(lines, nodejs) {
   lines = this.addLines('NVM', [
     'curl https://raw.githubusercontent.com/creationix/nvm/v0.25.0/install.sh | sh',
     'source ~/.nvm/nvm.sh',
-    printf('export USER_NODE=%s', nodejs),
+    printf('export TRAVIS_NODE_VERSION=%s', nodejs),
     printf('nvm install %s', nodejs),
     'node -v > $SIVART_BASE_LOG_DIR/nodejs.version',
     'echo "Using NodeJS version `node -v`"'
     ], lines, 'error');
   return lines;
-}
+};
 
-CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
+CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) {
 
   lines.push('startTimestamp=`date +"%s"`');
 
+  lines = this.addLines('Travis Emulation', [
+    printf('export TRAVIS_BRANCH=%s', this.branch || 'master'),
+    printf('export TRAVIS_BUILD_DIR=`pwd`/%s', this.repoName),
+    printf('export TRAVIS_REPO_SLUG=%s', this.repoName),
+    printf('export TRAVIS_JOB_NUMBER=`hostname`.%s', buildNumber),
+    'export TRAVIS_BUILD_NUMBER=`hostname`',
+    'export TRAVIS_BUILD_ID=`hostname`',
+    'export TRAVIS_JOB_ID=`hostname`',
+    'export TRAVIS_OS_NAME=linux',
+    'export TRAVIS_SECURE_ENV_VARS=false'
+  ]);
+
   lines = this.addLines('Git Request', [
     printf('export GITHUB_REQUEST="%s"', JSON.stringify(this.metadata)),
-    "echo ${GITHUB_REQUEST} > $SIVART_BASE_LOG_DIR/github.request"
+    'echo ${GITHUB_REQUEST} > $SIVART_BASE_LOG_DIR/github.request'
   ], lines, 'error');
 
   // Metadata
   lines = this.addLines('METADATA', [
     printf('export METADATA="%s"', JSON.stringify(metadata)),
-    "echo ${METADATA} > $SIVART_BASE_LOG_DIR/metadata"
+    'echo ${METADATA} > $SIVART_BASE_LOG_DIR/metadata'
   ], lines, 'error');
 
-  if (this.eventName == 'push') {
+  if (this.eventName === 'push') {
     lines = this.addLines('GIT Push', [
       printf('git clone --depth=50 --branch=%s %s', this.branch, this.cloneURL, this.repoName),
       printf('cd %s', this.repoName),
       printf('git checkout -qf %s', this.commit),
       'export TRAVIS_PULL_REQUEST=false',
+      printf('export TRAVIS_COMMIT=%s', this.commit),
       printf('export SIVART_REPO_BRANCH=%s', this.branch)
     ], lines, 'error');
   } else {
@@ -131,12 +146,14 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
 
   // Git clone
   lines = this.addLines('GIT', [
-    printf('export SIVART_REPO_NAME=%s', this.repoName),
+    printf('export SIVART_REPO_NAME=%s', this.repoName)
     ], lines, 'error');
 
   // Global env variables
   if (yml.env && yml.env.global) {
-    var globals = yml.env.global.map(function(glob) { return printf('export %s', glob) });
+    var globals = yml.env.global.map(function(glob) {
+      return printf('export %s', glob);
+    });
     lines = this.addLines('Globals', globals, lines, 'error');
   }
 
@@ -191,39 +208,37 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata) {
     lines = this.addLines('Delete VM', ['deleteInstance'], lines);
   }
   return lines;
-}
+};
 
 CreateScript.prototype.createScripts = function(cb) {
-  var scripts= [];
+  var scripts = [];
   var me = this;
+  var buildNumber = 0;
   this.getYML(function(err, yml) {
     if (err) {
       cb(err);
     } else if (yml.env && yml.env.matrix) {
-      var i = 0;
-      yml.node_js.forEach(function(node_js) {
+      yml.node_js.forEach(function(nodeJS) {
         yml.env.matrix.forEach(function(matrix) {
           // start with a new templateLines each time
           var lines = me.addLines('Matrix', [
             'export ' + matrix,
-            printf("echo %s > $SIVART_BASE_LOG_DIR/matrix", matrix)
+            printf('echo %s > $SIVART_BASE_LOG_DIR/matrix', matrix)
             ], getTemplateLines());
-          var lines = me.addNodeJS(lines, node_js);
-          var metadata = me.getMetadata(node_js, matrix)
-          scripts[i++] = { 
-            script: me.addGlobals(lines, yml, metadata),
+          lines = me.addNodeJS(lines, nodeJS);
+          var metadata = me.getMetadata(nodeJS, matrix);
+          scripts[buildNumber++] = {
+            script: me.addGlobals(lines, yml, metadata, buildNumber + 1),
             metadata: metadata
           };
-          i++;
         });
       });
     } else {
-      var i = 0;
-      yml.node_js.forEach(function(node_js) {
-        var lines = me.addNodeJS(getTemplateLines(), node_js);
-        var metadata = me.getMetadata(node_js)
-        scripts[i++] = { 
-          script: me.addGlobals(getTemplateLines(), yml, metadata),
+      yml.node_js.forEach(function(nodeJS) {
+        var lines = me.addNodeJS(getTemplateLines(), nodeJS);
+        var metadata = me.getMetadata(nodeJS);
+        scripts[buildNumber++] = {
+          script: me.addGlobals(lines, yml, metadata, buildNumber + 1),
           metatdata: metadata
         };
       });
@@ -232,14 +247,14 @@ CreateScript.prototype.createScripts = function(cb) {
   });
 };
 
-CreateScript.prototype.getMetadata = function(node_js, matrix) {
+CreateScript.prototype.getMetadata = function(nodeJS, matrix) {
   return {
     name: this.repoName,
     commit: this.commit,
     branch: this.branch,
     pr: this.pr,
     action: this.action,
-    node_js: node_js,
+    nodeVersion: nodeJS,
     matrix: matrix
   };
 };
@@ -252,8 +267,8 @@ CreateScript.prototype.getScripts = function(cb) {
     } else {
       var done = [];
       scripts.forEach(function(script) {
-        var template = fs.readFileSync(path.join(__dirname, 'startup.sh.template'), 'utf8');
-        var startupScript = template.replace('SIVART_USER_SCRIPT', script.script.join("\n"));
+        var startTemplate = fs.readFileSync(path.join(__dirname, 'startup.sh.template'), 'utf8');
+        var startupScript = startTemplate.replace('SIVART_USER_SCRIPT', script.script.join('\n'));
         startupScript = startupScript.replace(/SIVART_TIMEOUT/g, me.timeout);
         startupScript = startupScript.replace(/SIVART_KILL_AFTER_NO_CHANGE/g, me.nochangeTimeout);
         if (me.keepVM) {
