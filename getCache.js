@@ -14,8 +14,9 @@ var branch = process.argv[3];
 var gcloud = require('gcloud');
 var storage = gcloud.storage(Auth);
 
-var safeRepo = repoName.replace(/\//g, '-');
-var bucketname = ['sivart', safeRepo, branch].join('-');
+var safeRepo = repoName.toLowerCase().replace(/[^0-9a-z-]/g, '-');
+var safeBranch = branch.toLowerCase().replace(/[^0-9a-z-]/g, '-');
+var bucketname = ['sivart', safeRepo, safeBranch].join('-');
 console.log('bucket name is: ' + bucketname);
 
 function handleResults(hrerr, files, nextQuery) {
