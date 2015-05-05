@@ -116,8 +116,8 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
   ], lines);
 
   lines = this.addLines('Build metadata', [
-    printf('export SIVART_JSON_GITHUB_REQUEST="%s"', JSON.stringify(this.metadata)),
-    'echo ${SIVART_JSON_GITHUB_REQUEST} > $SIVART_BASE_LOG_DIR/github.request.json',
+//    printf('export SIVART_JSON_GITHUB_REQUEST="%s"', JSON.stringify(this.metadata)),
+//    'echo ${SIVART_JSON_GITHUB_REQUEST} > $SIVART_BASE_LOG_DIR/github.request.json',
     printf('export SIVART_JSON_BUILD_CONFIG="%s"', JSON.stringify(yml)),
     'echo ${SIVART_JSON_BUILD_CONFIG} > $SIVART_BASE_LOG_DIR/build.config.json',
     printf('export SIVART_JSON_METADATA="%s"', JSON.stringify(metadata)),
