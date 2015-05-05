@@ -76,7 +76,7 @@ CreateScript.prototype.addLines = function(section, newLines, existingLines, sta
         command = command.replace(/\\\\"$/, '"');
       }
       state = state || 'ignore';
-      existingLines.push(printf('runCommand "%s" "%s"', command, state));
+      existingLines.push(printf("runCommand '%s' '%s'", command, state));
     });
   }
   existingLines.push(printf('echo "------ END %s ----------------"', section));
