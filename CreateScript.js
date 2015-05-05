@@ -110,7 +110,7 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
     'export TRAVIS_JOB_ID=`hostname`',
     'export TRAVIS_OS_NAME=linux',
     'export TRAVIS_SECURE_ENV_VARS=false'
-  ]);
+  ], lines);
 
   lines = this.addLines('Git Request', [
     printf('export GITHUB_REQUEST="%s"', JSON.stringify(this.metadata)),

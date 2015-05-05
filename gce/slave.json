@@ -1,7 +1,7 @@
 {
   "disks": [
     {
-      "otype": "PERSISTENT",
+      "type": "PERSISTENT",
       "boot": true,
       "mode": "READ_WRITE",
       "deviceName": "slave-disk",
