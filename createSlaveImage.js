@@ -83,7 +83,7 @@ Q.ninvoke(snapshot, 'create', { instance: data })
       console.log('Deleting base disk (be pateint!)...');
       return Q.ninvoke(snapshot.gce, 'waitForZoneOperation', deleteInsertResponse[0]);
     }).then(function() {
-      console.log(printf('All done!  New "%s" image successfully', slaveImageName));
+      console.log(printf('All done!  New "%s" image successfully created', slaveImageName));
     }).catch(function(error) {
       console.error('error');
       console.error(error);
