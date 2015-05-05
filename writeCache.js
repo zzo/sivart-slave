@@ -22,8 +22,9 @@ var lzoFile = tarFile + '.lzo';
 var baseName = path.basename(lzoFile);
 
 // Save files
-var safeRepo = repoName.replace(/\//g, '-');
-var bucketname = ['sivart', safeRepo, branch].join('-');
+var safeRepo = repoName.toLowerCase().replace(/[^0-9a-z-]/g, '-');
+var safeBranch = branch.toLowerCase().replace(/[^0-9a-z-]/g, '-');
+var bucketname = ['sivart', safeRepo, safeBranch].join('-').slice(0, 63);
 
 function createTarFile(outputFile, inputDirectory, cb) {
   var command = printf('tar -caf %s %s', outputFile, inputDirectory);
