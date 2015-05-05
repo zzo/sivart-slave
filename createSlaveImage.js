@@ -8,7 +8,7 @@ var printf = require('util').format;
 var Q = require('q');
 Q.longStackSupport = true;
 
-var slaveImageName = 'slave';
+var slaveImageName = 'slave-1';
 var instanceName = 'slave-snapshot';
 var zone = 'us-central1-a';
 var snapshot = new Instance(Auth.projectId, zone, instanceName);
@@ -19,11 +19,13 @@ var data = JSON.parse(fs.readFileSync(snapshotFile));
 var startupScript = fs.readFileSync(path.join(__dirname, 'snapshot.sh'), 'utf8');
 data.name = instanceName;
 data.disks[0].deviceName = instanceName;
-data.metadata.items[0].value = startupScript.replace('$', '\\$');
+data.metadata.items[0].value = startupScript;//.replace('$', '\\$');
 data.disks[0].autoDelete = false;
 
+console.log('creating instance...');
 Q.ninvoke(snapshot, 'create', { instance: data })
   .then(function(result) {
+      console.log('waiting for instance...');
       var deferred = Q.defer();
       function getConsole() {
         snapshot.gce.getSerialConsoleOutput({ instance: instanceName }, function(err, output) {
@@ -51,13 +53,18 @@ Q.ninvoke(snapshot, 'create', { instance: data })
     .then(function(compute) {
       var deferred = Q.defer();
       console.log(printf('Deleting current "%s" image...', slaveImageName));
-      compute.images.delete({image: slaveImageName }, function() {
+      compute.images.delete({image: slaveImageName }, function(err, resp) {
+        console.log('Deleted current image:');
+        console.log(err);
+        console.log(resp);
+        console.log('resolving promise');
         // ignore errors
         deferred.resolve(compute);
       });
       return deferred.promise;
     })
     .then(function(compute) {
+      console.log('Create new image %s from %s', slaveImageName, instanceName);
       return Q.ninvoke(compute.images, 'insert', {
         resource: {
           name: slaveImageName,
@@ -75,9 +82,9 @@ Q.ninvoke(snapshot, 'create', { instance: data })
     .then(function(deleteInsertResponse) {
       console.log('Deleting base disk (be pateint!)...');
       return Q.ninvoke(snapshot.gce, 'waitForZoneOperation', deleteInsertResponse[0]);
+    }).then(function() {
+      console.log(printf('All done!  New "%s" image successfully', slaveImageName));
     }).catch(function(error) {
       console.error('error');
       console.error(error);
-    }).done(function() {
-      console.log(printf('All done!  New "%s" image successfully', slaveImageName));
     });

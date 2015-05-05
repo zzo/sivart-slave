@@ -41,6 +41,11 @@ HOME=/tmp npm install
 chown -R sivart:users /usr/local/sivart-slave
 popd
 
-su -l sivart -c "/bin/bash /tmp/user-script.sh" 2>&1 | tee $USER_LOG
+su -l sivart -c "curl https://raw.githubusercontent.com/creationix/nvm/v0.25.0/install.sh | sh"
+su -l sivart -c ". .nvm/nvm.sh && nvm install 0.8"
+su -l sivart -c ". .nvm/nvm.sh && nvm install 0.10"
+su -l sivart -c ". .nvm/nvm.sh && nvm install 0.12"
+su -l sivart -c ". .nvm/nvm.sh && nvm install iojs"
+su -l sivart -c ". .nvm/nvm.sh && nvm install stable"
 
 echo __DONE__

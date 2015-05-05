@@ -86,10 +86,10 @@ CreateScript.prototype.addLines = function(section, newLines, existingLines, sta
 CreateScript.prototype.addNodeJS = function(lines, nodejs) {
   // NVM
   lines = this.addLines('NVM', [
-    'curl https://raw.githubusercontent.com/creationix/nvm/v0.25.0/install.sh | sh',
+//    'curl https://raw.githubusercontent.com/creationix/nvm/v0.25.0/install.sh | sh',
     'source ~/.nvm/nvm.sh',
     printf('export TRAVIS_NODE_VERSION=%s', nodejs),
-    printf('nvm install %s', nodejs),
+    printf('nvm use %s', nodejs),
     'node -v > $SIVART_BASE_LOG_DIR/nodejs.version',
     'echo "Using NodeJS version `node -v`"'
     ], lines, 'error');
