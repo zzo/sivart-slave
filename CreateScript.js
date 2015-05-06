@@ -221,6 +221,7 @@ CreateScript.prototype.createScripts = function(cb) {
     } else if (yml.env && yml.env.matrix) {
       yml.node_js.forEach(function(nodeJS) {
         yml.env.matrix.forEach(function(matrix) {
+          buildNumber++;
           // start with a new templateLines each time
           var lines = me.addLines('Matrix', [
             'export ' + matrix,
@@ -228,18 +229,19 @@ CreateScript.prototype.createScripts = function(cb) {
             ], getTemplateLines());
           lines = me.addNodeJS(lines, nodeJS);
           var metadata = me.getMetadata(nodeJS, matrix, buildNumber);
-          scripts[buildNumber++] = {
-            script: me.addGlobals(lines, yml, metadata, buildNumber + 1),
+          scripts[buildNumber] = {
+            script: me.addGlobals(lines, yml, metadata, buildNumber),
             metadata: metadata
           };
         });
       });
     } else {
       yml.node_js.forEach(function(nodeJS) {
+        buildNumber++;
         var lines = me.addNodeJS(getTemplateLines(), nodeJS);
         var metadata = me.getMetadata(nodeJS, buildNumber);
-        scripts[buildNumber++] = {
-          script: me.addGlobals(lines, yml, metadata, buildNumber + 1),
+        scripts[buildNumber] = {
+          script: me.addGlobals(lines, yml, metadata, buildNumber),
           metatdata: metadata
         };
       });
