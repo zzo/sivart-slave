@@ -227,7 +227,7 @@ CreateScript.prototype.createScripts = function(cb) {
             printf('echo %s > $SIVART_BASE_LOG_DIR/matrix', matrix)
             ], getTemplateLines());
           lines = me.addNodeJS(lines, nodeJS);
-          var metadata = me.getMetadata(nodeJS, matrix);
+          var metadata = me.getMetadata(nodeJS, matrix, buildNumber);
           scripts[buildNumber++] = {
             script: me.addGlobals(lines, yml, metadata, buildNumber + 1),
             metadata: metadata
@@ -237,7 +237,7 @@ CreateScript.prototype.createScripts = function(cb) {
     } else {
       yml.node_js.forEach(function(nodeJS) {
         var lines = me.addNodeJS(getTemplateLines(), nodeJS);
-        var metadata = me.getMetadata(nodeJS);
+        var metadata = me.getMetadata(nodeJS, buildNumber);
         scripts[buildNumber++] = {
           script: me.addGlobals(lines, yml, metadata, buildNumber + 1),
           metatdata: metadata
@@ -248,7 +248,7 @@ CreateScript.prototype.createScripts = function(cb) {
   });
 };
 
-CreateScript.prototype.getMetadata = function(nodeJS, matrix) {
+CreateScript.prototype.getMetadata = function(nodeJS, matrix, buildNumber) {
   return {
     name: this.repoName,
     commit: this.commit,
@@ -256,7 +256,8 @@ CreateScript.prototype.getMetadata = function(nodeJS, matrix) {
     pr: this.pr,
     action: this.action,
     nodeVersion: nodeJS,
-    matrix: matrix
+    matrix: matrix,
+    buildNumber: buildNumber
   };
 };
 
