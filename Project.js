@@ -76,7 +76,9 @@ Project.prototype.createSlave = function(script, cb) {
       cb(err);
     } else {
       script.metadata.created = new Date().getTime();
+      script.metadata.instanceName = instanceName;
       me.slaves[instanceName] = script.metadata;
+      me.slaves[script.metadata.buildNumber] = script.metadata
       cb(null, instanceName);
     }
   });
@@ -90,13 +92,14 @@ Project.prototype.createAllSlaves = function(cb) {
     } else {
       var done = 0;
       var errors = [];
-      var responses = {};
+      var responses = [];
       scripts.forEach(function(script) {
         me.createSlave(script, function(cslaveerr, data) {
           if (cslaveerr) {
             errors.push(cslaveerr);
           } else {
-            responses[data] = script.metadata;
+            //responses[data] = script.metadata;
+            responses[script.metadata.buildNumber] = script.metadata;
           }
           // use promises :)
           done++;
@@ -144,4 +147,6 @@ Project.prototype.initialSave = function(errors, instances, cb) {
   });
 };
 
+Project.prototype.getNextBuildNumber = function(cb) {
+};
 module.exports = Project;
