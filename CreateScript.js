@@ -31,14 +31,15 @@ function CreateScript(args) {
 CreateScript.prototype.getYML = function(cb) {
   var http = require('https');
   var yaml = require('js-yaml');
+  var defaultYML = { script: [ 'npm test' ], node_js: [ '0.10' ] };
+  if (!this.yamlURL) {
+    return cb(null, defaultYML);
+  }
   http.get(this.yamlURL,
     function(response) {
       if (response.statusCode === 404) {
         // No .travis.yml file - use defaults
-        cb(null, {
-          script: [ 'npm test' ],
-          node_js: [ '0.10' ]
-        });
+        cb(null, defaultYML);
       } else {
         response.setEncoding('utf8');
         var data = '';
@@ -107,12 +108,14 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
     printf('export TRAVIS_BRANCH=%s', this.branch),
     printf('export TRAVIS_BUILD_DIR=`pwd`/%s', this.repoName),
     printf('export TRAVIS_REPO_SLUG=%s', this.repoName),
-    printf('export TRAVIS_JOB_NUMBER=`hostname`.%s', buildNumber),
-    'export TRAVIS_BUILD_NUMBER=`hostname`',
-    'export TRAVIS_BUILD_ID=`hostname`',
-    'export TRAVIS_JOB_ID=`hostname`',
+    printf('export TRAVIS_JOB_NUMBER=%s.%s', this.buildId, buildNumber),
+    printf('export TRAVIS_BUILD_NUMBER=%s', buildNumber),
+    'export TRAVIS_BUILD_ID=`hostname`', // internal id
+    'export TRAVIS_JOB_ID=`hostname`', // interval id
     'export TRAVIS_OS_NAME=linux',
-    'export TRAVIS_SECURE_ENV_VARS=false'
+    'export TRAVIS_SECURE_ENV_VARS=false',
+    printf('export SIVART_BUILD_NUMBER=%s', buildNumber),
+    printf('export SIVART_BUILD_ID=%s', this.buildId)
   ], lines);
 
   lines = this.addLines('Build metadata', [
@@ -211,10 +214,11 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
   return lines;
 };
 
-CreateScript.prototype.createScripts = function(cb) {
+CreateScript.prototype.createScripts = function(buildId, cb) {
   var scripts = [];
   var me = this;
   var buildNumber = 0;
+  this.buildId = buildId;
   this.getYML(function(err, yml) {
     if (err) {
       cb(err);
@@ -239,10 +243,10 @@ CreateScript.prototype.createScripts = function(cb) {
       yml.node_js.forEach(function(nodeJS) {
         buildNumber++;
         var lines = me.addNodeJS(getTemplateLines(), nodeJS);
-        var metadata = me.getMetadata(nodeJS, buildNumber);
+        var metadata = me.getMetadata(nodeJS, null, buildNumber);
         scripts[buildNumber] = {
           script: me.addGlobals(lines, yml, metadata, buildNumber),
-          metatdata: metadata
+          metadata: metadata
         };
       });
     }
@@ -263,9 +267,9 @@ CreateScript.prototype.getMetadata = function(nodeJS, matrix, buildNumber) {
   };
 };
 
-CreateScript.prototype.getScripts = function(cb) {
+CreateScript.prototype.getScripts = function(buildId, cb) {
   var me = this;
-  this.createScripts(function(err, scripts) {
+  this.createScripts(buildId, function(err, scripts) {
     if (err) {
       cb(err);
     } else {

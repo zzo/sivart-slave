@@ -22,7 +22,7 @@ function saveCache() {
 }
 
 function saveLogs() {
-  nodejs $SIVART_SLAVE/saveLogs.js $SIVART_BASE_LOG_DIR
+  nodejs $SIVART_SLAVE/saveLogs.js $SIVART_BASE_LOG_DIR $SIVART_REPO_NAME $SIVART_REPO_BRANCH $SIVART_BUILD_ID $SIVART_BUILD_NUMBER
 }
 
 function deleteInstance() {

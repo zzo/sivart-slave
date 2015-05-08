@@ -5,21 +5,34 @@ var path = require('path');
 var hostname = require('os').hostname();
 var Auth = require('sivart-GCE/Auth');
 var gcloud = require('gcloud');
+var WriteData = require('sivart-data/WriteBuildData');
 var storage = gcloud.storage(Auth);
 
+// Get info
 var logDir = process.argv[2];
+var repoName = process.argv[3];
+var branch = process.argv[4];
+var buildId = process.argv[5];
+var buildNumber = process.argv[6];
+
+writeData = new WriteData(repoName);
+bucketname = writeData.getBucketName();
+
 fs.writeFileSync(path.join(logDir, 'environment.json'), JSON.stringify(process.env));
 
+// Save files
+var basepath = path.join(branch, buildId, buildNumber);
+
 // Store files
-storage.createBucket(hostname, function(err, bucket) {
+storage.createBucket(bucketname, function(err, bucket) {
   if (err) {
     bucket = storage.bucket(hostname);
   }
   var files = fs.readdirSync(logDir);
   files.forEach(function(file) {
-    fs.createReadStream(path.join(logDir, file)).pipe(bucket.file(file).createWriteStream());
+    fs.createReadStream(path.join(logDir, file)).pipe(bucket.file(path.join(basepath, file)).createWriteStream());
   });
-  fs.createReadStream('/tmp/user-script.sh').pipe(bucket.file('user-script.sh').createWriteStream());
-  fs.createReadStream('/tmp/user-script.log').pipe(bucket.file('user-script.log').createWriteStream());
-  fs.createReadStream('/var/log/startupscript.log').pipe(bucket.file('startupscript.log').createWriteStream());
+  fs.createReadStream('/tmp/user-script.sh').pipe(bucket.file(path.join(basepath, 'user-script.sh')).createWriteStream());
+  fs.createReadStream('/tmp/user-script.log').pipe(bucket.file(path.join(basepath, 'user-script.log')).createWriteStream());
+  fs.createReadStream('/var/log/startupscript.log').pipe(bucket.file(path.join(basepath, 'startupscript.log')).createWriteStream());
 });
