@@ -6,19 +6,19 @@ var os = require('os');
 var Auth = require('sivart-GCE/Auth');
 var printf = require('util').format;
 var nodeVersion = process.env.TRAVIS_NODE_VERSION;
+var WriteData = require('sivart-data/WriteBuildData');
 
 // Get info
-var repoName = process.argv[2];
-var branch = process.argv[3];
+var repoName = process.env.TRAVIS_REPO_SLUG;
+var branch = process.env.TRAVIS_BRANCH;
+
+var writeData = new WriteData(repoName);
+var bucketname = writeData.getBucketName();
 
 var gcloud = require('gcloud');
 var storage = gcloud.storage(Auth);
 
-var safeRepo = repoName.toLowerCase().replace(/[^0-9a-z-]/g, '-');
-var safeBranch = branch.toLowerCase().replace(/[^0-9a-z-]/g, '-');
-var bucketname = ['sivart', safeRepo, safeBranch].join('-');
 console.log('bucket name is: ' + bucketname);
-
 function handleResults(hrerr, files, nextQuery) {
   if (hrerr) {
     console.log('Error getting cached directory:');
@@ -63,7 +63,10 @@ storage.createBucket(bucketname, function(err, bucket) {
     bucket = storage.bucket(bucketname);
   }
 
-console.log('get cache files: cache-' + nodeVersion);
+  var safeBranch = branch.toLowerCase().replace(/[^0-9a-z-]/g, '-');
+  var fileStart = ['cache', safeBranch, nodeVersion].join('-');
+  console.log('get cache files: ' + fileStart + ' from ' + bucketname);
+
   // Get all the cache files for this repo+branch combination
-  bucket.getFiles({prefix: 'cache-' + nodeVersion }, handleResults);
+  bucket.getFiles({prefix: fileStart }, handleResults);
 });

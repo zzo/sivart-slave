@@ -13,16 +13,16 @@ popd > /dev/null 2>&1
 
 function getCaches() {
   # besdies directory to cache we also need the full repo name & branch
-  nodejs $SIVART_SLAVE/getCache.js $SIVART_REPO_NAME $SIVART_REPO_BRANCH
+  nodejs $SIVART_SLAVE/getCache.js
 }
 
 function saveCache() {
   # besdies directory to cache we also need the full repo name & branch
-  nodejs $SIVART_SLAVE/writeCache.js $1 $SIVART_REPO_NAME $SIVART_REPO_BRANCH
+  nodejs $SIVART_SLAVE/writeCache.js $1
 }
 
 function saveLogs() {
-  nodejs $SIVART_SLAVE/saveLogs.js $SIVART_BASE_LOG_DIR $SIVART_REPO_NAME $SIVART_REPO_BRANCH $SIVART_BUILD_ID $SIVART_BUILD_NUMBER
+  nodejs $SIVART_SLAVE/saveLogs.js
 }
 
 function deleteInstance() {

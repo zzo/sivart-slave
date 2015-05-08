@@ -9,14 +9,14 @@ var WriteData = require('sivart-data/WriteBuildData');
 var storage = gcloud.storage(Auth);
 
 // Get info
-var logDir = process.argv[2];
-var repoName = process.argv[3];
-var branch = process.argv[4];
-var buildId = process.argv[5];
-var buildNumber = process.argv[6];
+var logDir = process.env.SIVART_BASE_LOG_DIR;
+var repoName = process.env.TRAVIS_REPO_SLUG;
+var branch = process.env.TRAVIS_BRANCH;
+var buildId = process.env.SIVART_BUILD_ID;
+var buildNumber = process.env.SIVART_BUILD_NUMBER;
 
-writeData = new WriteData(repoName);
-bucketname = writeData.getBucketName();
+var writeData = new WriteData(repoName);
+var bucketname = writeData.getBucketName();
 
 fs.writeFileSync(path.join(logDir, 'environment.json'), JSON.stringify(process.env));
 

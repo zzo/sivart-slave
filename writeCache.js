@@ -7,24 +7,26 @@ var os = require('os');
 var printf = require('util').format;
 var exec = require('child_process').exec;
 var nodeVersion = process.env.TRAVIS_NODE_VERSION;
+var WriteData = require('sivart-data/WriteBuildData');
 
 // Get info
 var cacheDir = process.argv[2];
-var repoName = process.argv[3];
-var branch = process.argv[4];
+
+var repoName = process.env.TRAVIS_REPO_SLUG;
+var branch = process.env.TRAVIS_BRANCH;
+
+var writeData = new WriteData(repoName);
+var bucketname = writeData.getBucketName();
 
 var gcloud = require('gcloud');
 var storage = gcloud.storage(Auth);
 
+var safeBranch = branch.toLowerCase().replace(/[^0-9a-z-]/g, '-');
 var safeDir = cacheDir.replace(/\//g, '-');
-var tarFile = path.join(os.tmpdir(), printf('cache-%s-%s.tar', nodeVersion, safeDir));
+var basicFileName = ['cache', safeBranch, nodeVersion, safeDir].join('-');
+var tarFile = path.join(os.tmpdir(), basicFileName);
 var lzoFile = tarFile + '.lzo';
 var baseName = path.basename(lzoFile);
-
-// Save files
-var safeRepo = repoName.toLowerCase().replace(/[^0-9a-z-]/g, '-');
-var safeBranch = branch.toLowerCase().replace(/[^0-9a-z-]/g, '-');
-var bucketname = ['sivart', safeRepo, safeBranch].join('-').slice(0, 63);
 
 function createTarFile(outputFile, inputDirectory, cb) {
   var command = printf('tar -caf %s %s', outputFile, inputDirectory);
