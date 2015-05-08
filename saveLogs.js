@@ -21,7 +21,7 @@ var bucketname = writeData.getBucketName();
 fs.writeFileSync(path.join(logDir, 'environment.json'), JSON.stringify(process.env));
 
 // Save files
-var basepath = path.join(branch, buildId, buildNumber);
+var basepath = path.join(branch, String(buildId), String(buildNumber));
 
 // Store files
 storage.createBucket(bucketname, function(err, bucket) {
