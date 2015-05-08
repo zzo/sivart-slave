@@ -1,7 +1,6 @@
 'use strict';
 
 var path = require('path');
-var fs = require('fs');
 var os = require('os');
 var Auth = require('sivart-GCE/Auth');
 var printf = require('util').format;
@@ -33,13 +32,14 @@ function handleResults(hrerr, files, nextQuery) {
       { destination: tmpPath },
       function(dlerr) {
         if (dlerr) {
-          console.log('Error getting cache directory: ' + tmpPath);
+          console.log('Error getting cache file: ' + tmpPath);
+          console.log(dlerr);
         } else {
           var exec = require('child_process').exec;
           exec(printf('tar xaf %s', tmpPath), { cwd: process.cwd() },
             function(execerr) { // , stdout, stderr) {
                 if (execerr) {
-                  console.log('error decompressing:');
+                  console.log('Error decompressing cache file:');
                   console.log(execerr);
                 } else {
                   console.log('Restored cache directory from ' + path.basename(tmpPath));
@@ -65,7 +65,7 @@ storage.createBucket(bucketname, function(err, bucket) {
 
   var safeBranch = branch.toLowerCase().replace(/[^0-9a-z-]/g, '-');
   var fileStart = ['cache', safeBranch, nodeVersion].join('-');
-  console.log('get cache files: ' + fileStart + ' from ' + bucketname);
+  console.log('try to restore cache files: ' + fileStart + ' from ' + bucketname);
 
   // Get all the cache files for this repo+branch combination
   bucket.getFiles({prefix: fileStart }, handleResults);

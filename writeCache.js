@@ -42,15 +42,21 @@ storage.createBucket(bucketname, function(cberr, bucket) {
   createTarFile(tarFile, cacheDir,
     function(exerr) {
       if (exerr) {
-        console.log('error compressing:');
+        console.log('Error tarring directory:');
         console.log(exerr);
       } else {
         // Get current file & see if we wanna re-save it
         //    if hash values are different
         var uncompressedSize = fs.lstatSync(tarFile).size;
         bucket.getFiles({prefix: baseName}, function handleResults(gferr, files) {
-          console.log(gferr || 'cache file does not exist: ' + baseName);
+          if (gferr) {
+            console.log('Error downloading cache files:');
+            console.log(gferr);
+          } else if (!files.length) {
+            console.log('Cache file does not exist: ' + baseName);
+          }
           if (gferr || !files || !files[0]) {
+            console.log('Creating new cache file: ' + baseName);
             if (!files) {
               files = [];
             }
@@ -59,9 +65,10 @@ storage.createBucket(bucketname, function(cberr, bucket) {
           }
           if (files[0]) {
             if (files[0].metadata.metadata.uncompressedSize !== String(uncompressedSize)) {
+              console.log('Cache file size changed (or did not yet exist): ' + baseName);
               createTarFile(lzoFile, cacheDir, function(lzoErr) {
                 if (lzoErr) {
-                  console.log('Error compressing tar file');
+                  console.log('Error compressing cache file:');
                   console.log(lzoErr);
                 } else {
                   // ship it
@@ -69,17 +76,17 @@ storage.createBucket(bucketname, function(cberr, bucket) {
                   bucket.upload(lzoFile, { destination: baseName, metadata: { metadata: { uncompressedSize: uncompressedSize } } },
                     function(uperr) {
                       if (uperr) {
-                        console.log(printf('Error updating cached directory'));
+                        console.log(printf('Error updating cached directory:'));
                         console.log(uperr);
                       } else {
-                        console.log(printf('Successfully saved directory'));
+                        console.log(printf('Successfully updated cache for %s', baseName));
                       }
                     }
                   );
                 }
               });
             } else {
-              console.log(printf('Directory unchanged - not updating'));
+              console.log(printf('Directory unchanged - not updating: ' + baseName));
             }
           }
         });
