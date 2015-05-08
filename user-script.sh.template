@@ -1,6 +1,6 @@
-SIVART_BASE_LOG_DIR=/tmp/sivart/logs
+export SIVART_BASE_LOG_DIR=/tmp/sivart/logs
 mkdir -p $SIVART_BASE_LOG_DIR
-SIVART_SLAVE=/usr/local/sivart-slave
+export SIVART_SLAVE=/usr/local/sivart-slave
 
 # For xvfb
 export DISPLAY=:99
