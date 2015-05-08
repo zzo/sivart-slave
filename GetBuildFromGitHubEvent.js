@@ -24,7 +24,7 @@ module.exports = function(eventName, githubEvent) {
     return new getBuild({
       eventName: eventName,
       pr: githubEvent.number,
-      action: githubEvent.action, // 'synchronize' or 'closed' or 'unlabeled'
+      action: githubEvent.action, // 'synchronize' or 'closed' or 'opened'
       branch: 'master',
     }, githubEvent);
   } else {

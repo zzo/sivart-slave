@@ -16,7 +16,7 @@ var Build = function(args, rawBuildRequest) {
 
 // Take a startup script and create a VM for it
 Build.prototype.createInstance = function(script, cb) {
-  var newBuildVM = Instance.Slave();
+  var newBuildVM = Instance.Factory('slave');
 
   // Stash some stuff for fun
   script.metadata.created = new Date().getTime();
