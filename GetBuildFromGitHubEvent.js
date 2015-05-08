@@ -5,7 +5,6 @@ var path = require('path');
 
 // fill out common args from github
 function getBuild(args, githubEvent) {
-  args.metadata = githubEvent;
   args.repoName = githubEvent.repository.full_name;
   args.cloneURL = githubEvent.repository.clone_url;
   args.yamlURL = printf('https://raw.githubusercontent.com/%s/%s/.travis.yml', args.repoName, args.branch);
