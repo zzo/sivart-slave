@@ -2,6 +2,7 @@
 
 var Build = require('./Build');
 var path = require('path');
+var printf = require('util').format;
 
 // fill out common args from github
 function getBuild(args, githubEvent) {
