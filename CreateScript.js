@@ -203,7 +203,7 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
     'echo Total time is $totalTime seconds'
   ], lines);
 
-  lines = this.addLines('Save Logs', ['saveLogs'], lines);
+  lines = this.addLines('Save Logs', ['saveLogs'], lines, 'error');
 
   if (!this.keepVM) {
     lines = this.addLines('Delete VM', ['deleteInstance'], lines);

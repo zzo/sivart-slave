@@ -30,4 +30,22 @@ files.push(
 // Save files to here within bucket
 //  branch name / build id / build number
 var basepath = path.join(branch, String(buildId), String(buildNumber));
-writeData.writeFilesToBucket(basepath, files, function() {});
+writeData.writeFilesToBucket(basepath, files, function(failures) {
+  if (failures) {
+    // write out errors to default error bucket
+    var errorWriteData = new WriteData('error');
+    fs.writeFileSync('/tmp/save.error.json', JSON.stringify({ data:
+      {
+        logDir: logDir,
+        repoName: repoName,
+        branch: branch,
+        buildId: buildId,
+        buildNumber: buildNumber,
+        failures: failures
+      }
+    }, null, ' '));
+    errorWriteData.writeFileToBucket('/tmp/save.error.json', new Date().getTime + '.json', function() {
+      process.exit(1);
+    });
+  }
+});

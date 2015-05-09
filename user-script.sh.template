@@ -48,7 +48,7 @@ function runCommand() {
     echo "end time: `date -d @$end`" >> $errorlog
     echo "command ran for: $len seconds" >> $errorlog
     saveLogs
-    if [[ SIVART_KEEP_VM -eq 0 ]]
+    if [[ $? -eq 0 || SIVART_KEEP_VM -eq 0 ]]
       then
       deleteInstance
       else
