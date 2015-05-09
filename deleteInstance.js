@@ -15,7 +15,7 @@ exec('users',
         console.log('exec error: ' + error);
       }
       console.log('No one logged in - deleting');
-      var sivartSlave = Instance.Factory(slave, instanceName);
+      var sivartSlave = Instance.Factory('slave', instanceName);
       sivartSlave.delete(function() {
         // bye bye!
       });
