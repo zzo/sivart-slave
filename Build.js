@@ -22,7 +22,9 @@ Build.prototype.createInstance = function(script, cb) {
   script.metadata.created = new Date().getTime();
   script.metadata.instanceName = newBuildVM.instanceName;
 
-  newBuildVM.build(script.script, function(err) { cb(err, script); });
+  newBuildVM.build(script.script, function(err) {
+    cb(err, script.metadata);
+  });
 };
 
 Build.prototype.doBuilds = function(cb) {
@@ -31,17 +33,47 @@ Build.prototype.doBuilds = function(cb) {
     .then(function(buildId) {
       Q.ninvoke(me.createScript, 'getScripts', buildId)
         .then(function(scripts) {
-          Q.allSettled(scripts.map(function(script) { return Q.ninvoke(me, 'createInstance', script); }))
-            .then(function(results) {
-              var responses = 
-                results
-//                  .filter(function(resp) { return resp.state === 'fulfilled'; })
-//                  .sort(function(a, b) { a.value.metadata.buildNumber - b.value.metadata.buildNumber})
-                  .map(function(val) {
-                    return val.state === 'fulfilled' ? val.value.metadata : val.reason;
-                  });
-              Q.ninvoke(me.buildData, 'store', responses, me.rawBuildRequest).then(cb());
-            });
+          Q.allSettled(scripts.map(function(script) {
+              return Q.ninvoke(me, 'createInstance', script);
+          }))
+          .then(function(results) {
+            var responses =
+              results
+                .map(function(val) {
+                  return val.state === 'fulfilled' ? val.value : val.reason;
+                });
+
+            var successes =
+              results
+                .filter(function(resp) {
+                  return resp.state === 'fulfilled';
+                })
+                .sort(function(a, b) {
+                  return a.value.buildNumber - b.value.buildNumber;
+                })
+                .map(function(val) {
+                  return val.value;
+                });
+
+            var failures =
+              results
+                .filter(function(resp) {
+                  return resp.state === 'rejected';
+                })
+                .map(function(val) {
+                  return val.reason;
+                });
+
+            Q.ninvoke(me.buildData, 'store', responses, me.rawBuildRequest).then(
+              function() {
+                if (failures.length) {
+                  cb(failures, successes);
+                } else {
+                  cb(null, successes);
+                }
+              }
+            );
+          });
         });
     })
     .catch(function(err) {

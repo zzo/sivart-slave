@@ -1,10 +1,13 @@
 var Build = require('../Build');
+var printf = require('util').format;
 
 var args = {
-  repoName: 'this/is/a/repo',
+  repoName: 'test/repo',
   eventName: 'push',
   branch: 'master',
-  cloneURL: 'http://clone.me/this/is/a/repo'
+  cloneURL: 'https://github.com/zzo/angular.git',
+  yamlURL: 'https://raw.githubusercontent.com/zzo/angular/master/.travis.yml',
+  commit: 'f7668b3600e1f778691295aeef50eea8f9a97c10'
 };
 
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 100000;
@@ -25,16 +28,10 @@ describe("Build", function() {
 
     it("does builds", function(done) {
       build.doBuilds(function(err, rez) {
-        if (err) {
-          console.log('err from do builds');
-          console.log(err);
-        } else {
-          console.log('rez');
-          console.log(rez);
-        }
+        expect(err).toBeNull();
+        expect(rez.length).toBe(3);
         done();
       });
     });
-
   });
 });
