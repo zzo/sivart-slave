@@ -145,9 +145,9 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
     ], lines, 'error');
   }
 
-  lines = this.addLines('Update State', [
+  lines = this.addLines('Update state to building', [
     'updateState "building"'
-  ]);
+  ], lines);
 
   // Git clone
   lines = this.addLines('GIT', [
