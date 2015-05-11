@@ -8,6 +8,7 @@ export DISPLAY=:99
 # Used for caching and logging and other utilities
 pushd $SIVART_SLAVE > /dev/null 2>&1
 git pull >> /tmp/sivart-slave.log 2>&1
+/bin/rm -rf node_modules/sivart-*
 npm install >> /tmp/sivart-slave.log 2>&1
 popd > /dev/null 2>&1
 
