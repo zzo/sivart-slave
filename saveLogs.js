@@ -29,7 +29,7 @@ files.push(
 
 // Save files to here within bucket
 //  branch name / build id / build number
-var basepath = path.join(branch, String(buildId), String(buildNumber));
+var basepath = path.join('branch-' + branch, String(buildId), String(buildNumber));
 writeData.writeFilesToBucket(basepath, files, function(failures) {
   if (failures) {
     // write out errors to default error bucket
