@@ -133,7 +133,7 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
       printf('cd %s', this.repoName),
       printf('git checkout -qf %s', this.commit),
       'export TRAVIS_PULL_REQUEST=false',
-      printf('export TRAVIS_COMMIT=%s', this.commit),
+      printf('export TRAVIS_COMMIT=%s', this.commit)
     ], lines, 'error');
   } else {
     lines = this.addLines('GIT Pull Request', [
@@ -141,9 +141,13 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
       printf('cd %s', this.repoName),
       printf('git fetch origin +refs/pull/%s/merge:', this.pr),
       'git checkout -qf FETCH_HEAD',
-      printf('export TRAVIS_PULL_REQUEST=%s', this.pr),
+      printf('export TRAVIS_PULL_REQUEST=%s', this.pr)
     ], lines, 'error');
   }
+
+  lines = this.addLines('Update State', [
+    'updateState "building"'
+  ]);
 
   // Git clone
   lines = this.addLines('GIT', [
@@ -203,7 +207,7 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
     'echo Total time is $totalTime seconds'
   ], lines);
 
-  lines = this.addLines('Save Logs', ['saveLogs'], lines, 'error');
+  lines = this.addLines('Save Logs', ['saveLogs "passed"'], lines, 'error');
 
   if (!this.keepVM) {
     lines = this.addLines('Delete VM', ['deleteInstance'], lines);

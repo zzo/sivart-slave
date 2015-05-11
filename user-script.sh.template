@@ -21,7 +21,12 @@ function saveCache() {
   nodejs $SIVART_SLAVE/writeCache.js $1
 }
 
+function updateState() {
+  nodejs $SIVART_SLAVE/updateState.js $1
+}
+
 function saveLogs() {
+  updateState $1
   nodejs $SIVART_SLAVE/saveLogs.js
 }
 
@@ -47,7 +52,7 @@ function runCommand() {
     echo "start time: `date -d @$start`" >> $errorlog
     echo "end time: `date -d @$end`" >> $errorlog
     echo "command ran for: $len seconds" >> $errorlog
-    saveLogs
+    saveLogs $2
     if [[ $? -eq 0 || SIVART_KEEP_VM -eq 0 ]]
       then
       deleteInstance

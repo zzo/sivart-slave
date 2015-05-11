@@ -21,6 +21,7 @@ Build.prototype.createInstance = function(script, cb) {
   // Stash some stuff for fun
   script.metadata.created = new Date().getTime();
   script.metadata.instanceName = newBuildVM.instanceName;
+  script.metadata.state = 'started';
 
   newBuildVM.build(script.script, function(err) {
     cb(err, script.metadata);
