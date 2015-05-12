@@ -17,15 +17,13 @@ var Build = function(args, rawBuildRequest) {
 // Take a startup script and create a VM for it
 Build.prototype.createInstance = function(script, cb) {
   var newBuildVM = Instance.Factory('slave');
-  var me = this;
 
   // Stash instance name
   script.metadata.instanceName = newBuildVM.instanceName;
-    newBuildVM.build(script.script, function(err) {
-      script.metadata.built = new Date().getTime();
-      me.buildData.updateState(script.metadata.buildId, script.metadata.buildNumber, 'running', function() {
-      cb(err, script.metadata);
-    });
+  newBuildVM.build(script.script, function(err) {
+    script.metadata.created = new Date().getTime();
+    script.metadata.state = 'running';
+    cb(err, script.metadata);
   });
 };
 
