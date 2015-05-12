@@ -60,27 +60,31 @@ CreateScript.prototype.getYML = function(cb) {
 };
 
 CreateScript.prototype.addLines = function(section, newLines, existingLines, state) {
-  existingLines.push(printf('echo "------ START %s ----------------"', section));
-  if (newLines) {
-    newLines.forEach(function(command) {
-      // This is fun!  We need _3_ backslashes to make it thru to /tmp/user-script so
-      //  there are 12 here - will end up as 6 in the global startup script and finally
-      //  3 in the final user-script.
-      //  THIS IS ONLY FOR EXPORTING env vars to a file ($TSDRC -> .tsdrc)
-      if (command.match(/TSDRC/)) {
-        command = command.replace(/"/g, '\\\\\\\\\\\\"');
-      }
-      if (command.match(/SIVART_JSON/)) {
-        command = command.replace(/"/g, '\\\\"');
-        // get rid of first and last '\\'s
-        command = command.replace(/\\\\/, '');
-        command = command.replace(/\\\\"$/, '"');
-      }
-      state = state || 'ignore';
-      existingLines.push(printf("runCommand '%s' '%s'", command, state));
-    });
+  if (state === 'system') {
+    if (newLines) {
+      newLines.forEach(function(command) {
+        existingLines.push('echo ' + command + ' >> /tmp/sivart/logs/system.log 2>&1');
+        existingLines.push(command + ' >> /tmp/sivart/logs/system.log 2>&1');
+        existingLines.push('echo $? >> /tmp/sivart/logs/system.log 2>&1');
+      });
+    }
+  } else {
+    existingLines.push(printf('echo "------ START %s ----------------"', section));
+    if (newLines) {
+      newLines.forEach(function(command) {
+        // This is fun!  We need _3_ backslashes to make it thru to /tmp/user-script so
+        //  there are 12 here - will end up as 6 in the global startup script and finally
+        //  3 in the final user-script.
+        //  THIS IS ONLY FOR EXPORTING env vars to a file ($TSDRC -> .tsdrc)
+        if (command.match(/TSDRC/)) {
+          command = command.replace(/"/g, '\\\\\\\\\\\\"');
+        }
+        state = state || 'ignore';
+        existingLines.push(printf("runCommand '%s' '%s'", command, state));
+      });
+    }
+    existingLines.push(printf('echo "------ END %s ----------------"', section));
   }
-  existingLines.push(printf('echo "------ END %s ----------------"', section));
   return existingLines;
 };
 
@@ -116,16 +120,7 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
     'export TRAVIS_SECURE_ENV_VARS=false',
     printf('export SIVART_BUILD_NUMBER=%s', buildNumber),
     printf('export SIVART_BUILD_ID=%s', this.buildId)
-  ], lines);
-
-  lines = this.addLines('Build metadata', [
-//    printf('export SIVART_JSON_GITHUB_REQUEST="%s"', JSON.stringify(this.metadata)),
-//    'echo ${SIVART_JSON_GITHUB_REQUEST} > $SIVART_BASE_LOG_DIR/github.request.json',
-    printf('export SIVART_JSON_BUILD_CONFIG="%s"', JSON.stringify(yml)),
-    'echo ${SIVART_JSON_BUILD_CONFIG} > $SIVART_BASE_LOG_DIR/build.config.json',
-    printf('export SIVART_JSON_METADATA="%s"', JSON.stringify(metadata)),
-    'echo ${SIVART_JSON_METADATA} > $SIVART_BASE_LOG_DIR/metadata.json'
-  ], lines);
+  ], lines, 'system');
 
   if (this.eventName === 'push') {
     lines = this.addLines('GIT Push', [
@@ -147,16 +142,16 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
 
   lines = this.addLines('Save Environment', [
     'env | tee $SIVART_BASE_LOG_DIR/environment.env'
-  ], lines);
+  ], lines, 'system');
 
   lines = this.addLines('Update state to building', [
     'updateState "building"'
-  ], lines);
+  ], lines, 'system');
 
   // Git clone
   lines = this.addLines('GIT', [
     printf('export SIVART_REPO_NAME=%s', this.repoName)
-    ], lines, 'error');
+    ], lines, 'system');
 
   // Global env variables
   if (yml.env && yml.env.global) {
@@ -209,12 +204,12 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
     'endTimestamp=`date +"%s"`',
     'totalTime=$((endTimestamp - startTimestamp))',
     'echo Total time is $totalTime seconds'
-  ], lines);
+  ], lines, 'system');
 
-  lines = this.addLines('Save Logs', ['saveLogs "passed"'], lines, 'error');
+  lines = this.addLines('Save Logs', ['saveLogs "passed"'], lines, 'system');
 
   if (!this.keepVM) {
-    lines = this.addLines('Delete VM', ['deleteInstance'], lines);
+    lines = this.addLines('Delete VM', ['deleteInstance'], lines, 'system');
   }
   return lines;
 };
