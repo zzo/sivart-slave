@@ -264,6 +264,7 @@ CreateScript.prototype.getMetadata = function(nodeJS, matrix, buildNumber) {
     action: this.action,
     nodeVersion: nodeJS,
     matrix: matrix,
+    buildId: this.buildId,
     buildNumber: buildNumber
   };
 };
