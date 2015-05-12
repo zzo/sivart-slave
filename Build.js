@@ -17,14 +17,15 @@ var Build = function(args, rawBuildRequest) {
 // Take a startup script and create a VM for it
 Build.prototype.createInstance = function(script, cb) {
   var newBuildVM = Instance.Factory('slave');
+  var me = this;
 
-  // Stash some stuff for fun
-  script.metadata.created = new Date().getTime();
+  // Stash instance name
   script.metadata.instanceName = newBuildVM.instanceName;
-  script.metadata.state = 'started';
-
-  newBuildVM.build(script.script, function(err) {
-    cb(err, script.metadata);
+    newBuildVM.build(script.script, function(err) {
+      script.metadata.built = new Date().getTime();
+      me.buildData.updateState(script.metadata.buildId, script.metadata.buildNumber, 'running', function() {
+      cb(err, script.metadata);
+    });
   });
 };
 
@@ -38,7 +39,7 @@ Build.prototype.doBuilds = function(cb) {
               return Q.ninvoke(me, 'createInstance', script);
           }))
           .then(function(results) {
-            var responses =
+            var runs =
               results
                 .map(function(val) {
                   return val.state === 'fulfilled' ? val.value : val.reason;
@@ -65,7 +66,7 @@ Build.prototype.doBuilds = function(cb) {
                   return val.reason;
                 });
 
-            Q.ninvoke(me.buildData, 'store', responses, me.rawBuildRequest).then(
+            Q.ninvoke(me.buildData, 'store', runs, me.rawBuildRequest, { id: buildId, branch: me.branch }).then(
               function() {
                 if (failures.length) {
                   cb(failures, successes);

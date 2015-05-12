@@ -145,6 +145,10 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
     ], lines, 'error');
   }
 
+  lines = this.addLines('Save Environment', [
+    'env | tee $SIVART_BASE_LOG_DIR/environment.env'
+  ], lines);
+
   lines = this.addLines('Update state to building', [
     'updateState "building"'
   ], lines);
@@ -265,7 +269,9 @@ CreateScript.prototype.getMetadata = function(nodeJS, matrix, buildNumber) {
     nodeVersion: nodeJS,
     matrix: matrix,
     buildId: this.buildId,
-    buildNumber: buildNumber
+    buildNumber: buildNumber,
+    state: 'created',
+    created: new Date().getTime()
   };
 };
 
