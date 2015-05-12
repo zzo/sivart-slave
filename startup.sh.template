@@ -15,7 +15,8 @@ function timedout() {
   cat $lastlog >> $TIMEOUT_LOG
   echo $$ >> $TIMEOUT_LOG
   ps auxwww | grep $$ >> $TIMEOUT_LOG
-  /usr/bin/nodejs /usr/local/sivart-slave/saveLogs.js 'timeout'
+  # Let's hope the user script doesn't timeout before it dumps this file :)
+  env $(cat /tmp/sivart/logs/environment.env | xargs) /usr/bin/nodejs /usr/local/sivart-slave/saveLogs.js 'timeout'
   if [[ SIVART_KEEP_VM -eq 0 ]]
     then
     /usr/bin/nodejs /usr/local/sivart-slave/deleteInstance.js
@@ -63,5 +64,5 @@ echo '----------- END USER SCRIPT -----------------'
 
 ## If we get here there must be an explicit 'exit' command in the user stages
 echo User script exited with $keep > /tmp/sivart/logs/user_exit.log
-nodejs /usr/local/sivart-slave/saveLogs.js 'exited'
+env $(cat /tmp/sivart/logs/environment.env | xargs) /usr/bin/nodejs /usr/local/sivart-slave/saveLogs.js 'exited'
 nodejs /usr/local/sivart-slave/deleteInstance.js
