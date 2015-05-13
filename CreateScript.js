@@ -214,6 +214,28 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
   return lines;
 };
 
+function skipThisBuild(thisBuildMatrix, nodeJS, ymlMatrix) {
+  // Not implemented yet!
+  return false;
+}
+
+function ignoreThisBuild(thisBuildMatrix, nodeJS, ymlMatrix) {
+  var af = false;
+  if (ymlMatrix.allow_failures) {
+    ymlMatrix.allow_failures.forEach(function(allowed_failure) {
+      if (allowed_failure.env === thisBuildMatrix) {
+        // allowed failure!
+        af = true;
+      }
+      if (allowed_failure.node_js === nodeJS) {
+        af = true;
+      }
+    });
+  }
+
+  return af;
+}
+
 CreateScript.prototype.createScripts = function(buildId, cb) {
   var scripts = [];
   var me = this;
@@ -225,18 +247,23 @@ CreateScript.prototype.createScripts = function(buildId, cb) {
     } else if (yml.env && yml.env.matrix) {
       yml.node_js.forEach(function(nodeJS) {
         yml.env.matrix.forEach(function(matrix) {
-          buildNumber++;
-          // start with a new templateLines each time
-          var lines = me.addLines('Matrix', [
-            'export ' + matrix,
-            printf('echo %s > $SIVART_BASE_LOG_DIR/matrix', matrix)
-            ], getTemplateLines());
-          lines = me.addNodeJS(lines, nodeJS);
-          var metadata = me.getMetadata(nodeJS, matrix, buildNumber);
-          scripts[buildNumber] = {
-            script: me.addGlobals(lines, yml, metadata, buildNumber),
-            metadata: metadata
-          };
+          if (yml.matrix && skipThisBuild(matrix, yml.matrix)) {
+            // skipping this build
+          } else {
+            var ignoreThis = yml.matrix && ignoreThisBuild(matrix, nodeJS, yml.matrix);
+            buildNumber++;
+            // start with a new templateLines each time
+            var lines = me.addLines('Matrix', [
+              'export ' + matrix,
+              printf('echo %s > $SIVART_BASE_LOG_DIR/matrix', matrix)
+              ], getTemplateLines());
+            lines = me.addNodeJS(lines, nodeJS);
+            var metadata = me.getMetadata(nodeJS, matrix, buildNumber, ignoreThis);
+            scripts[buildNumber] = {
+              script: me.addGlobals(lines, yml, metadata, buildNumber),
+              metadata: metadata
+            };
+          }
         });
       });
     } else {
@@ -254,7 +281,7 @@ CreateScript.prototype.createScripts = function(buildId, cb) {
   });
 };
 
-CreateScript.prototype.getMetadata = function(nodeJS, matrix, buildNumber) {
+CreateScript.prototype.getMetadata = function(nodeJS, matrix, buildNumber, ignoreThis) {
   return {
     name: this.repoName,
     commit: this.commit,
@@ -264,7 +291,8 @@ CreateScript.prototype.getMetadata = function(nodeJS, matrix, buildNumber) {
     nodeVersion: nodeJS,
     matrix: matrix,
     buildId: this.buildId,
-    buildNumber: buildNumber
+    buildNumber: buildNumber,
+    ignoreFailure: ignoreThis
   };
 };
 

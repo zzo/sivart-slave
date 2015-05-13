@@ -64,7 +64,8 @@ Build.prototype.doBuilds = function(cb) {
                   return val.reason;
                 });
 
-            Q.ninvoke(me.buildData, 'store', runs, me.rawBuildRequest, { id: buildId, branch: me.branch }).then(
+            Q.ninvoke(me.buildData, 'store', runs, me.rawBuildRequest,
+                { state: 'running', id: buildId, branch: me.branch }).then(
               function() {
                 if (failures.length) {
                   cb(failures, successes);
