@@ -73,7 +73,10 @@ Build.prototype.doBuilds = function(cb) {
                   cb(null, successes);
                 }
               }
-            );
+            )
+            .catch(function(sID) {
+              cb(sID);
+            });
           });
         });
     })
