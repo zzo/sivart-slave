@@ -74,6 +74,7 @@ Build.prototype.doBuilds = function(cb) {
                   created: new Date().getTime(),
                   state: 'running',
                   id: buildId,
+                  repoName: me.repoName,
                   branch: me.branch
                 }
             ).then(
