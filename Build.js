@@ -10,7 +10,7 @@ var Build = function(args, rawBuildRequest) {
     this[key] = args[key];
   }
   this.createScript = new CreateScript(this);
-  this.buildData = new Datastore(this.repoName);
+  this.datastore = new Datastore(this.repoName);
   this.rawBuildRequest = rawBuildRequest;
 };
 
@@ -29,7 +29,7 @@ Build.prototype.createInstance = function(script, cb) {
 
 Build.prototype.doBuilds = function(cb) {
   var me = this;
-  Q.ninvoke(this.buildData, 'getNextBuildNumber')
+  Q.ninvoke(this.datastore, 'getNextBuildNumber')
     .then(function(buildId) {
       Q.ninvoke(me.createScript, 'getScripts', buildId)
         .then(function(scripts) {
@@ -64,8 +64,19 @@ Build.prototype.doBuilds = function(cb) {
                   return val.reason;
                 });
 
-            Q.ninvoke(me.buildData, 'saveInitialData', runs, me.rawBuildRequest,
-                { kind: this.eventName, created: new Date().getTime(), state: 'running', id: buildId, branch: me.branch }).then(
+            Q.ninvoke(
+                me.datastore,
+                'saveInitialData',
+                runs,
+                me.rawBuildRequest,
+                {
+                  kind: me.eventName,
+                  created: new Date().getTime(),
+                  state: 'running',
+                  id: buildId,
+                  branch: me.branch
+                }
+            ).then(
               function() {
                 if (failures.length) {
                   cb(failures, successes);
