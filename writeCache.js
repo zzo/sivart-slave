@@ -16,7 +16,7 @@ var repoName = process.env.TRAVIS_REPO_SLUG;
 var branch = process.env.TRAVIS_BRANCH;
 
 var filestore = new Filestore(repoName);
-var bucketname = filestore.bucketname;
+var bucketname = filestore.bucketName;
 
 var gcloud = require('gcloud');
 var storage = gcloud.storage(Auth);
