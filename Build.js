@@ -1,7 +1,7 @@
 'use strict';
 
 var CreateScript = require('./CreateScript');
-var BuildData = require('sivart-data/WriteBuildData');
+var Datastore = require('sivart-data/Datastore');
 var Instance = require('sivart-GCE/Instance');
 var Q = require('q');
 
@@ -10,7 +10,7 @@ var Build = function(args, rawBuildRequest) {
     this[key] = args[key];
   }
   this.createScript = new CreateScript(this);
-  this.buildData = new BuildData(this.repoName, this.eventName);
+  this.buildData = new Datastore(this.repoName);
   this.rawBuildRequest = rawBuildRequest;
 };
 
@@ -64,8 +64,8 @@ Build.prototype.doBuilds = function(cb) {
                   return val.reason;
                 });
 
-            Q.ninvoke(me.buildData, 'store', runs, me.rawBuildRequest,
-                { created: new Date().getTime(), state: 'running', id: buildId, branch: me.branch }).then(
+            Q.ninvoke(me.buildData, 'saveInitialData', runs, me.rawBuildRequest,
+                { kind: this.eventName, created: new Date().getTime(), state: 'running', id: buildId, branch: me.branch }).then(
               function() {
                 if (failures.length) {
                   cb(failures, successes);

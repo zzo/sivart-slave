@@ -5,14 +5,14 @@ var os = require('os');
 var Auth = require('sivart-GCE/Auth');
 var printf = require('util').format;
 var nodeVersion = process.env.TRAVIS_NODE_VERSION;
-var WriteData = require('sivart-data/WriteBuildData');
+var Filestore = require('sivart-data/Filestore');
 
 // Get info
 var repoName = process.env.TRAVIS_REPO_SLUG;
 var branch = process.env.TRAVIS_BRANCH;
 
-var writeData = new WriteData(repoName);
-var bucketname = writeData.getBucketName();
+var filestore = new Filestore(repoName);
+var bucketname = filestore.bucketname;
 
 var gcloud = require('gcloud');
 var storage = gcloud.storage(Auth);
