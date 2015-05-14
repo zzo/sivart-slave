@@ -291,6 +291,7 @@ CreateScript.prototype.getMetadata = function(nodeJS, matrix, buildNumber, ignor
     nodeVersion: nodeJS,
     matrix: matrix,
     buildId: this.buildId,
+    repoName: this.repoName,
     buildNumber: buildNumber,
     ignoreFailure: ignoreThis
   };
