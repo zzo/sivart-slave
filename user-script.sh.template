@@ -38,7 +38,7 @@ function deleteInstance() {
 
 function runCommand() {
   logf=$SIVART_BASE_LOG_DIR/`date +"%s.%N"`.log
-  exec 3> >(tee -a $logf $GLOBAL_LOG) # want to stream to serial console for live updating
+  exec 3> >(tee -a $logf $GLOBAL_LOG > /dev/null) # want to stream to serial console for live updating
   echo "--COMMAND START: $1: $logf: `date`" | tee $logf
   start=`date +"%s"`
   eval $1 >&3 2>&1
