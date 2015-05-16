@@ -1,7 +1,6 @@
 export SIVART_BASE_LOG_DIR=/tmp/sivart/logs
 mkdir -p $SIVART_BASE_LOG_DIR
 export SIVART_SLAVE=/usr/local/sivart-slave
-export GLOBAL_LOG=/var/log/startupscript.log
 
 # For xvfb
 export DISPLAY=:99
@@ -38,10 +37,10 @@ function deleteInstance() {
 
 function runCommand() {
   logf=$SIVART_BASE_LOG_DIR/`date +"%s.%N"`.log
-  exec 3> >(tee -a $logf $GLOBAL_LOG > /dev/null) # want to stream to serial console for live updating
   echo "--COMMAND START: $1: $logf: `date`" | tee $logf
   start=`date +"%s"`
-  eval $1 >&3 2>&1
+  exec 3> >(tee -a $logf) # enables also streaming to stdout so it goes to the serial console for live updating
+  eval $1 >&3 2>&1 # the problem is now user_script.log also has stdout/stderr - srub it later?
   keep=$?
   end=`date +"%s"`
   len=$((end - start))
