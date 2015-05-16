@@ -1,6 +1,7 @@
 export SIVART_BASE_LOG_DIR=/tmp/sivart/logs
 mkdir -p $SIVART_BASE_LOG_DIR
 export SIVART_SLAVE=/usr/local/sivart-slave
+export GLOBAL_LOG=/var/log/startupscript.log
 
 # For xvfb
 export DISPLAY=:99
@@ -37,14 +38,20 @@ function deleteInstance() {
 
 function runCommand() {
   logf=$SIVART_BASE_LOG_DIR/`date +"%s.%N"`.log
+  exec 3> >(tee -a $logf $GLOBAL_LOG) # want to stream to serial console for live updating
   echo "--COMMAND START: $1: $logf: `date`" | tee $logf
   start=`date +"%s"`
-  eval $1 >> $logf 2>&1
+  eval $1 >&3 2>&1
   keep=$?
   end=`date +"%s"`
   len=$((end - start))
+  exec 3>&-
   if [[ $2 != 'ignore' && $keep -gt 0 ]] 
     then
+    if [[ $keep -eq 2 ]]
+      then
+      $2=error  # tag 'exit 2' as an 'error' not a 'failure'
+    fi
     errorlog=$SIVART_BASE_LOG_DIR/$2.log
     echo "--COMMAND $2: $1: $keep: $len seconds" | tee -a $logf
     echo "command: $1" > $errorlog
