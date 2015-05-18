@@ -13,6 +13,8 @@ function timedout() {
   echo $lastlog >> $TIMEOUT_LOG
   echo -------- >> $TIMEOUT_LOG
   cat $lastlog >> $TIMEOUT_LOG
+  echo --COMMAND timeout: timeout: $2 seconds >> $lastlog
+
   echo $$ >> $TIMEOUT_LOG
   ps auxwww | grep $$ >> $TIMEOUT_LOG
   # Let's hope the user script doesn't timeout before it dumps this file :)
@@ -51,11 +53,11 @@ echo "$SCRIPT" > /tmp/user-script.sh
         else
           nochange=$((nochange + interval))
           if ((nochange > SIVART_KILL_AFTER_NO_CHANGE)); then
-            timedout "No output after SIVART_KILL_AFTER_NO_CHANGE seconds"
+            timedout "No output after $SIVART_KILL_AFTER_NO_CHANGE seconds" $SIVART_KILL_AFTER_NOCHANGE
           fi
       fi
     done
-    timedout "Build took too long"
+    timedout "Run took too long" $SIVART_TIMEOUT
 ) 2> /dev/null &
 
 echo '----------- START USER SCRIPT ---------------'
