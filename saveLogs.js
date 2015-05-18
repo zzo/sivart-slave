@@ -57,7 +57,8 @@ filestore.persistFiles(basepath, files, function(failures) {
         failures: failures
       }
     }, null, ' '));
-    errorFilestore.persistFile('/tmp/save.error.json', new Date().getTime + '.json', function() {
+    var errfile = new Date().getTime().toString() + '.json';
+    errorFilestore.persistFile('/tmp/save.error.json', errfile, function() {
       throw new Error(JSON.stringify(failures));
     });
   }

@@ -3,6 +3,7 @@
 var Instance = require('sivart-GCE/Instance');
 var instanceName = require('os').hostname();
 var exec = require('child_process').exec;
+process.exit(0);
 
 exec('users',
   function (error, stdout) {
