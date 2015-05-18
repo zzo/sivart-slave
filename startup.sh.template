@@ -5,6 +5,7 @@
 TOKEN=$'\1'  # ctrl-A
 
 USER_LOG=/tmp/user-script.log
+
 function timedout() {
   TIMEOUT_LOG=/tmp/sivart/logs/timeout.log
   echo $1 >> $TIMEOUT_LOG
@@ -62,7 +63,7 @@ echo "$SCRIPT" > /tmp/user-script.sh
 ) 2> /dev/null &
 
 echo '----------- START USER SCRIPT ---------------'
-su -l sivart -c "/bin/bash /tmp/user-script.sh" 2>&1 | tee $USER_LOG
+su -l sivart -c "/bin/bash /tmp/user-script.sh" 2>&1 | tee -a $USER_LOG
 keep=$?
 echo '----------- END USER SCRIPT -----------------'
 
