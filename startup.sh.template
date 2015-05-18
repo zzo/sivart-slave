@@ -2,6 +2,7 @@
 
 # Start xvfb
 /usr/bin/Xvfb :99 -screen 0 1280x1024x24 &
+TOKEN=$'\1'  # ctrl-A
 
 USER_LOG=/tmp/user-script.log
 function timedout() {
@@ -13,7 +14,7 @@ function timedout() {
   echo $lastlog >> $TIMEOUT_LOG
   echo -------- >> $TIMEOUT_LOG
   cat $lastlog >> $TIMEOUT_LOG
-  echo --COMMAND timeout: timeout: $2 seconds >> $lastlog
+  echo "\n$TOKEN--COMMAND timeout: timeout: $2 seconds >> $lastlog"
 
   echo $$ >> $TIMEOUT_LOG
   ps auxwww | grep $$ >> $TIMEOUT_LOG

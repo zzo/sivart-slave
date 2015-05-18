@@ -71,7 +71,7 @@ CreateScript.prototype.addLines = function(section, newLines, existingLines, sta
       });
     }
   } else {
-    existingLines.push(printf('echo "------ START %s ----------------"', section));
+    existingLines.push(printf('echo "$TOKEN----- START %s ----------------"', section));
     if (newLines) {
       newLines.forEach(function(command) {
         // This is fun!  We need _3_ backslashes to make it thru to /tmp/user-script so
@@ -85,7 +85,7 @@ CreateScript.prototype.addLines = function(section, newLines, existingLines, sta
         existingLines.push(printf("runCommand '%s' '%s'", command, state));
       });
     }
-    existingLines.push(printf('echo "------ END %s ----------------"', section));
+    existingLines.push(printf('echo "$TOKEN----- END %s ----------------"', section));
   }
   return existingLines;
 };

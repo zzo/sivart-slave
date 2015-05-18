@@ -1,6 +1,7 @@
 export SIVART_BASE_LOG_DIR=/tmp/sivart/logs
 mkdir -p $SIVART_BASE_LOG_DIR
 export SIVART_SLAVE=/usr/local/sivart-slave
+TOKEN=$'\1'  # ctrl-A
 
 # For xvfb
 export DISPLAY=:99
@@ -37,7 +38,7 @@ function deleteInstance() {
 
 function runCommand() {
   logf=$SIVART_BASE_LOG_DIR/`date +"%s.%N"`.log
-  echo "--COMMAND START: $1: $logf: `date`" | tee $logf
+  echo "$TOKEN--COMMAND START: $1: $logf: `date`" | tee $logf
   start=`date +"%s"`
   exec 3> >(tee -a $logf) # enables also streaming to stdout so it goes to the serial console for live updating
   eval $1 >&3 2>&1 # the problem is now user_script.log also has stdout/stderr - srub it later?
@@ -52,7 +53,7 @@ function runCommand() {
       $2=error  # tag 'exit 2' as an 'error' not a 'failure'
     fi
     errorlog=$SIVART_BASE_LOG_DIR/$2.log
-    echo "--COMMAND $2: $1: $keep: $len seconds" | tee -a $logf
+    echo "\n$TOKEN--COMMAND $2: $1: $keep: $len seconds" | tee -a $logf
     echo "command: $1" > $errorlog
     echo "log file: `basename $logf`" >> $errorlog
     echo "exit code: $keep" >> $errorlog
@@ -67,7 +68,8 @@ function runCommand() {
         kill -9 $$
     fi
   else 
-    echo "--COMMAND SUCCEEDED: $1: $len seconds" | tee -a $logf
+    # Ensure this starts on a new line
+    echo "\n$TOKEN--COMMAND SUCCEEDED: $1: $len seconds" | tee -a $logf
   fi
 #  cat $logf  # Drop output here when done or keep this file clean?
 } 
