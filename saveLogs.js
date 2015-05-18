@@ -27,6 +27,19 @@ files.push(
   '/var/log/startupscript.log'
 );
 
+// scrub /tmp/user-script.log
+var userLog = fs.readFileSync('/tmp/user-script.log', 'utf8');
+// All sivart-generated lines begin with ctrl-A
+var tokenRegex = new RegExp('^\u0001');
+
+userLog = userLog.split('\n').filter(function(line) {
+  return line.match(tokenRegex);
+}).map(function(line) {
+  return line.substring(1); // take the token off
+}).join('\n');
+
+fs.writeFileSync('/tmp/user-script.log', userLog);
+
 // Save files to here within bucket
 //  branch name / build id / build number
 var basepath = path.join('branch-' + branch, String(buildId), String(buildNumber));
@@ -45,7 +58,7 @@ filestore.persistFiles(basepath, files, function(failures) {
       }
     }, null, ' '));
     errorFilestore.persistFile('/tmp/save.error.json', new Date().getTime + '.json', function() {
-      process.exit(1);
+      throw new Error(JSON.stringify(failures));
     });
   }
 });
