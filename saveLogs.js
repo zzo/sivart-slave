@@ -38,7 +38,7 @@ userLog = userLog.split('\n').filter(function(line) {
   return line.substring(1); // take the token off
 }).join('\n');
 
-fs.writeFileSync('/tmp/user-script.log', userLog);
+fs.writeFileSync('/tmp/sivart/logs/user-script.log', userLog);
 
 // Save files to here within bucket
 //  branch name / build id / build number
