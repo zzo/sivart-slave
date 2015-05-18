@@ -10,9 +10,9 @@
   "dependencies": {
     "gcloud": "^0.13.2",
     "js-yaml": "^3.3.0",
-    "q": "^1.3.0",
-    "sivart-data": "zzo/sivart-data",
-    "sivart-GCE": "zzo/sivart-GCE"
+    "q": "^1.4.1",
+    "sivart-GCE": "zzo/sivart-GCE",
+    "sivart-data": "zzo/sivart-data"
   },
   "license": "Apache-2.0",
   "scripts": {

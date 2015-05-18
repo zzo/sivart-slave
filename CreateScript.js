@@ -60,6 +60,8 @@ CreateScript.prototype.getYML = function(cb) {
 };
 
 CreateScript.prototype.addLines = function(section, newLines, existingLines, state) {
+  // 'system' commands are hidden from the user output
+  //  TODO(trostler): figure out what to do if one of these commands fail
   if (state === 'system') {
     if (newLines) {
       newLines.forEach(function(command) {
@@ -206,7 +208,8 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
     'echo Total time is $totalTime seconds'
   ], lines, 'system');
 
-  lines = this.addLines('Save Logs', ['saveLogs "passed"'], lines, 'system');
+  // This updates this run's state to 'passwd'
+  lines = this.addLines('Save logs and update state', ['saveLogs "passed"'], lines, 'system');
 
   if (!this.keepVM) {
     lines = this.addLines('Delete VM', ['deleteInstance'], lines, 'system');

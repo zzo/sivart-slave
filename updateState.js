@@ -10,7 +10,6 @@ var buildNumber = process.env.SIVART_BUILD_NUMBER;
 
 datastore.updateRunState(buildId, buildNumber, newState, function(err) {
   if (err) {
-    console.log('Update build state error:');
-    console.log(err);
+    throw new Error('Update build state error: ' + err);
   }
 });
