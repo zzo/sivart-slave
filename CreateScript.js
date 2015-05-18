@@ -31,7 +31,7 @@ function CreateScript(args) {
 CreateScript.prototype.getYML = function(cb) {
   var http = require('https');
   var yaml = require('js-yaml');
-  var defaultYML = { script: [ 'npm test' ], node_js: [ '0.10' ] };
+  var defaultYML = { script: [ 'npm install', 'npm test' ], node_js: [ '0.10' ] };
   if (!this.yamlURL) {
     return cb(null, defaultYML);
   }
