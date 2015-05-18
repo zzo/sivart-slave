@@ -15,17 +15,6 @@ var filestore = new Filestore(repoName);
 // Save environment (for internal debugging)
 fs.writeFileSync(path.join(logDir, 'environment.json'), JSON.stringify(process.env));
 
-// Save all files in logDir...
-var files = fs.readdirSync(logDir).map(function(file) {
-  return path.join(logDir, file);
-});
-
-// ..and save these files too
-files.push(
-  '/tmp/user-script.sh',
-  '/var/log/startupscript.log'
-);
-
 // scrub /tmp/user-script.log
 var userLog = fs.readFileSync('/tmp/user-script.log', 'utf8');
 // All sivart-generated lines begin with ctrl-A
@@ -37,7 +26,18 @@ userLog = userLog.split('\n').filter(function(line) {
   return line.substring(1); // take the token off
 }).join('\n');
 
-fs.writeFileSync('/tmp/sivart/logs/user-script.log', userLog);
+fs.writeFileSync(path.join(logDir, 'user-script.log'), userLog);
+
+// Save all files in logDir...
+var files = fs.readdirSync(logDir).map(function(file) {
+  return path.join(logDir, file);
+});
+
+// ..and save these files too
+files.push(
+  '/tmp/user-script.sh',
+  '/var/log/startupscript.log'
+);
 
 // Save files to here within bucket
 //  branch name / build id / build number
