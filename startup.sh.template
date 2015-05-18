@@ -15,7 +15,8 @@ function timedout() {
   echo $lastlog >> $TIMEOUT_LOG
   echo -------- >> $TIMEOUT_LOG
   cat $lastlog >> $TIMEOUT_LOG
-  echo "\n$TOKEN--COMMAND timeout: timeout: $2 seconds >> $lastlog"
+  echo "" >> $lastlog
+  echo "$TOKEN--COMMAND timeout: timeout: $2 seconds" >> $lastlog
 
   echo $$ >> $TIMEOUT_LOG
   ps auxwww | grep $$ >> $TIMEOUT_LOG

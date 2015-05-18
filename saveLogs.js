@@ -26,7 +26,7 @@ userLog = userLog.split('\n').filter(function(line) {
   return line.substring(1); // take the token off
 }).join('\n');
 
-fs.writeFileSync(path.join(logDir, 'user-script.log'), userLog);
+fs.writeFileSync(path.join(logDir, 'user-script.clean.log'), userLog);
 
 // Save all files in logDir...
 var files = fs.readdirSync(logDir).map(function(file) {
@@ -35,6 +35,7 @@ var files = fs.readdirSync(logDir).map(function(file) {
 
 // ..and save these files too
 files.push(
+  '/tmp/user-script.log',
   '/tmp/user-script.sh',
   '/var/log/startupscript.log'
 );
