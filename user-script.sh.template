@@ -53,7 +53,7 @@ function runCommand() {
       $2=error  # tag 'exit 2' as an 'error' not a 'failure'
     fi
     errorlog=$SIVART_BASE_LOG_DIR/$2.log
-    echo "\n$TOKEN--COMMAND $2: $1: $keep: $len seconds" | tee -a $logf
+    echo "\\n$TOKEN--COMMAND $2: $1: $keep: $len seconds" | tee -a $logf
     echo "command: $1" > $errorlog
     echo "log file: `basename $logf`" >> $errorlog
     echo "exit code: $keep" >> $errorlog
@@ -69,7 +69,7 @@ function runCommand() {
     fi
   else 
     # Ensure this starts on a new line
-    echo "\n$TOKEN--COMMAND SUCCEEDED: $1: $len seconds" | tee -a $logf
+    echo "\\n$TOKEN--COMMAND SUCCEEDED: $1: $len seconds" | tee -a $logf
   fi
 #  cat $logf  # Drop output here when done or keep this file clean?
 } 

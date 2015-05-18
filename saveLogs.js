@@ -23,7 +23,6 @@ var files = fs.readdirSync(logDir).map(function(file) {
 // ..and save these files too
 files.push(
   '/tmp/user-script.sh',
-  '/tmp/user-script.log',
   '/var/log/startupscript.log'
 );
 
