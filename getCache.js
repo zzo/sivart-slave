@@ -17,7 +17,6 @@ var bucketname = filestore.bucketName;
 var gcloud = require('gcloud');
 var storage = gcloud.storage(Auth);
 
-console.log('bucket name is: ' + bucketname);
 function handleResults(hrerr, files, nextQuery) {
   if (hrerr) {
     console.log('Error getting cached directory:');
