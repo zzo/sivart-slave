@@ -71,7 +71,7 @@ function runCommand() {
   else 
     # Ensure this starts on a new line
     echo "" | tee -a $logf
-    echo "$TOKEN--COMMAND SUCCEEDED: $1: $len seconds" | tee -a $logf
+    echo "$TOKEN--COMMAND passed: $1: $len seconds" | tee -a $logf
   fi
 #  cat $logf  # Drop output here when done or keep this file clean?
 } 

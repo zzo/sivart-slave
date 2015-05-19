@@ -23,7 +23,7 @@ function timedout() {
   ps auxwww | grep $$ >> $TIMEOUT_LOG
   # Let's hope the user script doesn't timeout before it dumps this file :)
   env $(cat /tmp/sivart/logs/environment.env | xargs) /usr/bin/nodejs /usr/local/sivart-slave/saveLogs.js
-  env $(cat /tmp/sivart/logs/environment.env | xargs) /usr/bin/nodejs /usr/local/sivart-slave/updateState.js 'timeout'
+  env $(cat /tmp/sivart/logs/environment.env | xargs) /usr/bin/nodejs /usr/local/sivart-slave/updateState.js 'timedout'
   if [[ SIVART_KEEP_VM -eq 0 ]]
     then
     /usr/bin/nodejs /usr/local/sivart-slave/deleteInstance.js

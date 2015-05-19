@@ -98,7 +98,7 @@ CreateScript.prototype.addNodeJS = function(lines, nodejs) {
     printf('nvm use %s', nodejs),
     'node -v > $SIVART_BASE_LOG_DIR/nodejs.version',
     'echo "Using NodeJS version `node -v`"'
-    ], lines, 'error');
+    ], lines, 'errored');
   return lines;
 };
 
@@ -131,7 +131,7 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
       printf('git checkout -qf %s', this.commit),
       'export TRAVIS_PULL_REQUEST=false',
       printf('export TRAVIS_COMMIT=%s', this.commit)
-    ], lines, 'error');
+    ], lines, 'errored');
   } else {
     lines = this.addLines('GIT Pull Request', [
       printf('git clone --depth=50 %s', this.cloneURL, this.repoName),
@@ -139,7 +139,7 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
       printf('git fetch origin +refs/pull/%s/merge:', this.pr),
       'git checkout -qf FETCH_HEAD',
       printf('export TRAVIS_PULL_REQUEST=%s', this.pr)
-    ], lines, 'error');
+    ], lines, 'errored');
   }
 
   lines = this.addLines('Save Environment', [
@@ -160,33 +160,33 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
     var globals = yml.env.global.map(function(glob) {
       return printf('export %s', glob);
     });
-    lines = this.addLines('Globals', globals, lines, 'error');
+    lines = this.addLines('Globals', globals, lines, 'errored');
   }
 
   // Get Cache
   if (yml.cache && yml.cache.directories) {
-    lines = this.addLines('Get Cached Directories', [ 'getCaches' ], lines, 'error');
+    lines = this.addLines('Get Cached Directories', [ 'getCaches' ], lines, 'errored');
   }
 
   // Other stuff
   if (yml.before_install) {
-    lines = this.addLines('Before Install', yml.before_install, lines, 'error');
+    lines = this.addLines('Before Install', yml.before_install, lines, 'errored');
   }
 
   if (yml.install) {
-    lines = this.addLines('Install', yml.install, lines, 'error');
+    lines = this.addLines('Install', yml.install, lines, 'errored');
   }
 
   if (yml.after_install) {
-    lines = this.addLines('After Install', yml.after_install, lines, 'error');
+    lines = this.addLines('After Install', yml.after_install, lines, 'errored');
   }
 
   if (yml.before_script) {
-    lines = this.addLines('Before Script', yml.before_script, lines, 'error');
+    lines = this.addLines('Before Script', yml.before_script, lines, 'errored');
   }
 
   if (yml.script) {
-    lines = this.addLines('Script', yml.script, lines, 'fail');
+    lines = this.addLines('Script', yml.script, lines, 'failed');
   }
 
   if (yml.after_script) {
