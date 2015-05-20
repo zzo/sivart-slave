@@ -23,7 +23,7 @@ Build.prototype.createInstance = function(script, cb) {
   newBuildVM.build(script.script, function(err) {
     script.metadata.created = new Date().getTime();
     script.metadata.state = 'running';
-    script.metadata.script = script.script;
+    script.metadata.script = new Buffer(script.script, 'utf8');
     cb(err, script.metadata);
   });
 };
