@@ -57,7 +57,7 @@ echo "$SCRIPT" > /tmp/user-script.sh
         else
           nochange=$((nochange + interval))
           if ((nochange > SIVART_KILL_AFTER_NO_CHANGE)); then
-            timedout "No output after $SIVART_KILL_AFTER_NO_CHANGE seconds" $SIVART_KILL_AFTER_NOCHANGE
+            timedout "No output after $SIVART_KILL_AFTER_NO_CHANGE seconds" $SIVART_KILL_AFTER_NO_CHANGE
           fi
       fi
     done
