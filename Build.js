@@ -5,14 +5,14 @@ var Datastore = require('sivart-data/Datastore');
 var Instance = require('sivart-GCE/Instance');
 var Q = require('q');
 
-var Build = function(args, rawBuildRequest) {
+function Build(args, rawBuildRequest) {
   for (var key in args) {
     this[key] = args[key];
   }
   this.createScript = new CreateScript(this);
   this.datastore = new Datastore(this.repoName);
   this.rawBuildRequest = rawBuildRequest;
-};
+}
 
 // Take a startup script and create a VM for it
 Build.prototype.createInstance = function(script, cb) {
@@ -23,6 +23,7 @@ Build.prototype.createInstance = function(script, cb) {
   newBuildVM.build(script.script, function(err) {
     script.metadata.created = new Date().getTime();
     script.metadata.state = 'running';
+    script.metadata.script = script.script;
     cb(err, script.metadata);
   });
 };
