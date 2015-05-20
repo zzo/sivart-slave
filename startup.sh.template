@@ -13,14 +13,20 @@ function timedout() {
   ps auxw | grep sivart | grep -v '^root' | grep -v grep >> $TIMEOUT_LOG
   ls -l1 /tmp/sivart/logs >> $TIMEOUT_LOG
   lastlog=`ls -1 /tmp/sivart/logs/[0-9]*.log | tail -1`
+
+  # Clean up current log files
+  echo "" >> $lastlog
+  echo "$TOKEN--COMMAND timedout: $1: 99: $2 seconds" >> $lastlog
+  echo "" >> $USER_LOG
+  echo "$TOKEN--COMMAND timedout: $1: 99: $2 seconds" >> $USER_LOG
+
+  # Put some interesting stuff in the timeout log
   echo $lastlog >> $TIMEOUT_LOG
   echo -------- >> $TIMEOUT_LOG
   cat $lastlog >> $TIMEOUT_LOG
-  echo "" >> $lastlog
-  echo "$TOKEN--COMMAND timeout: timeout: $2 seconds" >> $lastlog
-
   echo $$ >> $TIMEOUT_LOG
   ps auxwww | grep $$ >> $TIMEOUT_LOG
+
   # Let's hope the user script doesn't timeout before it dumps this file :)
   env $(cat /tmp/sivart/logs/environment.env | xargs) /usr/bin/nodejs /usr/local/sivart-slave/saveLogs.js
   env $(cat /tmp/sivart/logs/environment.env | xargs) /usr/bin/nodejs /usr/local/sivart-slave/updateState.js 'timedout'
