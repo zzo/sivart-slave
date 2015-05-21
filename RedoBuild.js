@@ -12,7 +12,7 @@ function RedoEntireBuild(repoName, buildId, cb) {
       cb(err);
     } else {
       Q.allSettled(build.runs.map(function(run) {
-        return Q.ninvoke(null, 'RedoOneRun', repoName, buildId, run.buildNumber);
+        return Q.nfcall(RedoOneRun, repoName, buildId, run.buildNumber);
       }))
       .then(function(results) {
         var failures =
