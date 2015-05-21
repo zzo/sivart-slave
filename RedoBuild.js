@@ -6,7 +6,7 @@ var Datastore = require('sivart-data/Datastore');
 var Filestore = require('sivart-data/Filestore');
 
 function RedoEntireBuild(repoName, buildId, cb) {
-  var datastore = new Datastore(this.repoName);
+  var datastore = new Datastore(repoName);
   datastore.getABuild(buildId, function(err, build) {
     if (err) {
       cb(err);
