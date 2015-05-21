@@ -44,6 +44,10 @@ EOF
 
 echo "$SCRIPT" > /tmp/user-script.sh
 
+####
+# SIVART_KILL_AFTER_NO_CHANGE and SIVART_TIMEOUT are template variables
+#  supplied by CreateScripts.js - do not put '$' in front of them :)
+####
 (
     interval=60
     nochange=0

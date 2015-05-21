@@ -7,7 +7,9 @@ var Q = require('q');
 
 function Build(args, rawBuildRequest) {
   for (var key in args) {
-    this[key] = args[key];
+    if (args.hasOwnProperty(key)) {
+      this[key] = args[key];
+    }
   }
   this.createScript = new CreateScript(this);
   this.datastore = new Datastore(this.repoName);
