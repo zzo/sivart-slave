@@ -11,6 +11,7 @@
     "gcloud": "^0.13.2",
     "js-yaml": "^3.3.0",
     "q": "^1.4.1",
+    "scp2": "^0.2.1",
     "sivart-GCE": "zzo/sivart-GCE",
     "sivart-data": "zzo/sivart-data"
   },
