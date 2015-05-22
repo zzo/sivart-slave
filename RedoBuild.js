@@ -79,4 +79,4 @@ function RedoEntireBuild(repoName, buildId, cb) {
   });
 }
 
-module.exports = { RedoEntireBuild: RedoEntireBuild };
+module.exports = { RedoEntireBuild: RedoEntireBuild, RedoOneRun: RedoOneRun };
