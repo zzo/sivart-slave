@@ -21,14 +21,16 @@ function cancelRun(repoName, buildId, buildNumber, cb) {
     } else {
       if (run.state === 'running' || run.state === 'building') {
         var instance = new Instance(Auth.projectId, Auth.zone, run.instanceName);
+        // Get serial console output
         instance.getSerialConsoleOutput(function(gscerr, contents) {
           if (gscerr) {
             cb(gscerr);
           } else {
             // dump to bucket as 'user-script.log'
             var tmpFileName = '/tmp/' + buildId + buildNumber;
-            fs.writeFileSync(tmpFileName, contents.contents, 'utf8');
+            fs.writeFileSync(tmpFileName, contents.contents);
             filestore.saveRunFile(buildId, buildNumber, 'user-script.log', tmpFileName, function(srferr) {
+              fs.unlinkSync(tmpFileName); // clean up
               if (srferr) {
                 cb(srferr);
               } else {
