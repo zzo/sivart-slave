@@ -23,42 +23,36 @@ function createInstance(script, cb) {
 // Blow out all of the old log files? YES
 function RedoOneRun(repoName, buildId, buildNumber, cb) {
   var datastore = new Datastore(repoName);
-  datastore.getStartupScript(buildId, buildNumber, function(err, script) {
-    if (err) {
-      cb(err);
+  // First update run state (which will also update the overall build state)
+  //   Do this first even tho we need to do it again later to update to 'running' ASAP
+  datastore.updateRunState(buildId, buildNumber, 'running', function(urserr) {
+    if (urserr) {
+      cb(urserr);
     } else {
-      createInstance(script, function(cierr, scriptMetadata) {
-        if (cierr) {
-          cb(cierr);
+      // Then blow away all log files
+      var filestore = new Filestore(repoName);
+      filestore.deleteRunFiles(buildId, buildNumber, function(drferr) {
+        if (drferr) {
+          cb(drferr);
         } else {
-          // update some stuff
-          // for the run itself need to update 'state' to 'running'
-          // build the overall build need to update state to 'running'
-          //  TODO(trostler): what about 'created' for both the run and overall job??
-          datastore.updateRunState(buildId, buildNumber, scriptMetadata, function(urserr) {
-              if (urserr) {
-                cb(urserr);
-              } else {
-                // update overall build state to 'running'
-                datastore.updateOverallState(buildId, 'running', function(uoserr) {
-                  if (uoserr) {
-                    cb(uoserr);
-                  } else {
-                    // Finally?  Blow away all current files for this run
-                    //  maybe do this first??
-                    var filestore = new Filestore(repoName);
-                    filestore.deleteRunFiles(buildId, buildNumber, function(drferr) {
-                      if (drferr) {
-                        cb(drferr);
-                      } else {
-                        cb(null);
-                      }
-                    });
-                  }
-                });
-              }
+          // Then get the startup script for this instance
+          datastore.getStartupScript(buildId, buildNumber, function(err, script) {
+            if (err) {
+              cb(err);
+            } else {
+              // Then create the VM
+              createInstance(script, function(cierr, scriptMetadata) {
+                if (cierr) {
+                  cb(cierr);
+                } else {
+                  // Finally update the run metadata (again)
+                  // This will set state to 'running' again AND set the instanceName which we now have
+                  //  which we did not want to wait for initially
+                  datastore.updateRunState(buildId, buildNumber, scriptMetadata, cb);
+                }
+              });
             }
-          );
+          });
         }
       });
     }
