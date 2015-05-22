@@ -26,6 +26,7 @@ Build.prototype.createInstance = function(script, cb) {
     script.metadata.created = new Date().getTime();
     script.metadata.state = 'running';
     script.metadata.script = new Buffer(script.script, 'utf8');
+    script.metadata.privateKey = newBuildVM.privateKey;
     cb(err, script.metadata);
   });
 };

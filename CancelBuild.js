@@ -5,7 +5,6 @@ var Datastore = require('sivart-data/Datastore');
 var Filestore = require('sivart-data/Filestore');
 var Util = require('sivart-data/Util');
 var Instance = require('sivart-GCE/Instance');
-var Auth = require('sivart-GCE/Auth');
 var fs = require('fs');
 
 // IF STILL RUNNING:
@@ -26,7 +25,7 @@ function cancelRun(repoName, buildId, buildNumber, cb) {
           if (urserr) {
             cb(urserr);
           } else {
-            var instance = new Instance(Auth.projectId, Auth.zone, run.instanceName);
+            var instance = Instance.Factory('slave', run.instanceName);
             // Get serial console output
             instance.getSerialConsoleOutput(function(gscerr, contents) {
               if (gscerr) {

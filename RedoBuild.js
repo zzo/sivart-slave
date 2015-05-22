@@ -14,7 +14,8 @@ function createInstance(script, cb) {
     var ret = {
       instanceName: newBuildVM.instanceName,
       state: 'running',
-      created: new Date().getTime()
+      created: new Date().getTime(),
+      privateKey: newBuildVM.privateKey
     };
     cb(err, ret);
   });
