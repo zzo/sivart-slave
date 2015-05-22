@@ -1,36 +1,22 @@
 'use strict';
 
-var Build = require('./Build');
 var Q = require('q');
 var Datastore = require('sivart-data/Datastore');
 var Filestore = require('sivart-data/Filestore');
+var Util = require('sivart-data/Util');
+var Instance = require('sivart-GCE/Instance');
 
-function RedoEntireBuild(repoName, buildId, cb) {
-  var datastore = new Datastore(repoName);
-  datastore.getABuild(buildId, function(err, build) {
-    if (err) {
-      cb(err);
-    } else {
-      Q.allSettled(build.runs.map(function(run) {
-        return Q.nfcall(RedoOneRun, repoName, buildId, run.buildNumber);
-      }))
-      .then(function(results) {
-        var failures =
-          results
-            .filter(function(resp) {
-              return resp.state === 'rejected';
-            })
-            .map(function(val) {
-              return val.reason;
-            });
+function createInstance(script, cb) {
+  var newBuildVM = Instance.Factory('slave');
 
-        if (failures.length) {
-          cb(failures);
-        } else {
-          cb();
-        }
-      });
-    }
+  // Stash instance name
+  newBuildVM.build(script, function(err) {
+    var ret = {
+      instanceName: newBuildVM.instanceName,
+      state: 'running',
+      created: new Date().getTime()
+    };
+    cb(err, ret);
   });
 }
 
@@ -41,7 +27,7 @@ function RedoOneRun(repoName, buildId, buildNumber, cb) {
     if (err) {
       cb(err);
     } else {
-      Build.prototype.createInstance.call(null, { script: script, metadata: {} }, function(cierr, scriptMetadata) {
+      createInstance(script, function(cierr, scriptMetadata) {
         if (cierr) {
           cb(cierr);
         } else {
@@ -49,11 +35,7 @@ function RedoOneRun(repoName, buildId, buildNumber, cb) {
           // for the run itself need to update 'state' to 'running'
           // build the overall build need to update state to 'running'
           //  TODO(trostler): what about 'created' for both the run and overall job??
-          datastore.updateRunState(buildId, buildNumber,
-            {
-              state: scriptMetadata.state,
-              instanceName: scriptMetadata.instanceName
-            }, function(urserr) {
+          datastore.updateRunState(buildId, buildNumber, scriptMetadata, function(urserr) {
               if (urserr) {
                 cb(urserr);
               } else {
@@ -79,6 +61,20 @@ function RedoOneRun(repoName, buildId, buildNumber, cb) {
           );
         }
       });
+    }
+  });
+}
+
+function RedoEntireBuild(repoName, buildId, cb) {
+  var datastore = new Datastore(repoName);
+  datastore.getABuild(buildId, function(err, build) {
+    if (err) {
+      cb(err);
+    } else {
+      var promises = build.runs.map(function(run) {
+        return Q.nfcall(RedoOneRun, repoName, buildId, run.buildNumber);
+      });
+      Util.dealWithAllPromises(promises, cb);
     }
   });
 }
