@@ -31,6 +31,61 @@ Build.prototype.createInstance = function(script, cb) {
   });
 };
 
+Build.prototype.createInstancePromise = function(script) {
+  var newBuildVM = Instance.Factory('slave');
+
+  // Stash run metadata
+  script.metadata.instanceName = newBuildVM.instanceName;
+  script.metadata.created = new Date().getTime();
+  script.metadata.state = 'running';
+  script.metadata.script = new Buffer(script.script, 'utf8');
+  script.metadata.privateKey = new Buffer(newBuildVM.privateKey);
+
+  return Q.ninvoke(newBuildVM, 'build', script.script)
+    .then(function() {
+      return script.metadata;
+    })
+    .catch(function(error) {
+      script.metadata.error = error;
+      return script.metadata;
+    });
+};
+
+// returns a promise
+Build.prototype.doBuildsPromise = function() {
+  var me = this;
+  return Q.ninvoke(this.datastore, 'getNextBuildNumber')
+  .then(function(buildId) {
+    me.buildId = buildId;
+    console.log('BUILDID: ' + buildId);
+    return Q.ninvoke(me.createScript, 'getScripts', buildId);
+  })
+  .then(function(scripts) {
+    return Q.all(scripts.map(function(script) {
+      return me.createInstancePromise(script);
+    }));
+  })
+  .then(function(results) {
+    console.log('save results for ' + me.datastore.buildId);
+    console.log(results);
+    return Q.ninvoke(
+        me.datastore,
+        'saveInitialData',
+        me.buildId,
+        results,
+        me.rawBuildRequest,
+        {
+          kind: me.eventName,
+          created: new Date().getTime(),
+          state: 'running',
+          id: me.buildId,
+          repoName: me.repoName,
+          branch: me.branch
+        }
+    );
+  });
+};
+
 Build.prototype.doBuilds = function(cb) {
   var me = this;
   Q.ninvoke(this.datastore, 'getNextBuildNumber')
@@ -44,7 +99,13 @@ Build.prototype.doBuilds = function(cb) {
             var runs =
               results
                 .map(function(val) {
-                  return val.state === 'fulfilled' ? val.value : val.reason;
+                  if (val.state === 'fulfilled') {
+                    return val.value;
+                  } else {
+                    var ret = val.value;
+                    ret.error = val.reason;
+                    return ret;
+                  }
                 });
 
             var successes =
