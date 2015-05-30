@@ -17,7 +17,7 @@ var bucketname = filestore.bucketName;
 var gcloud = require('gcloud');
 var storage = gcloud.storage(Auth);
 
-function handleResults(hrerr, files, nextQuery) {
+function handleResults(hrerr, files) {
   if (hrerr) {
     console.log('Error getting cached directory:');
     console.log(hrerr);
@@ -49,10 +49,6 @@ function handleResults(hrerr, files, nextQuery) {
       }
     );
   });
-
-  if (nextQuery) {
-    this.getFiles(nextQuery, handleResults);
-  }
 }
 // Get files
 storage.createBucket(bucketname, function(err, bucket) {
@@ -68,4 +64,5 @@ storage.createBucket(bucketname, function(err, bucket) {
 
   // Get all the cache files for this repo+branch combination
   bucket.getFiles({prefix: fileStart }, handleResults);
+//  filestore.getFileList(filestart, handleResults);
 });

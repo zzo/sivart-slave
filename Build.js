@@ -2,6 +2,7 @@
 
 var CreateScript = require('./CreateScript');
 var Datastore = require('sivart-data/Datastore');
+var Filestore = require('sivart-data/Filestore');
 var Instance = require('sivart-GCE/Instance');
 var Q = require('q');
 
@@ -13,6 +14,7 @@ function Build(args, rawBuildRequest) {
   }
   this.createScript = new CreateScript(this);
   this.datastore = new Datastore(this.repoName);
+  this.filestore = new Filestore(this.repoName);
   this.rawBuildRequest = rawBuildRequest;
 }
 
@@ -38,17 +40,25 @@ Build.prototype.createInstancePromise = function(script) {
   script.metadata.instanceName = newBuildVM.instanceName;
   script.metadata.created = new Date().getTime();
   script.metadata.state = 'running';
-  script.metadata.script = new Buffer(script.script, 'utf8');
-  script.metadata.privateKey = new Buffer(newBuildVM.privateKey);
-
-  return Q.ninvoke(newBuildVM, 'build', script.script)
-    .then(function() {
-      return script.metadata;
-    })
-    .catch(function(error) {
-      script.metadata.error = error;
-      return script.metadata;
-    });
+  this.filestore.saveScriptAndPK(
+    script.metadata.branch,
+    script.metadata.buildId,
+    script.metadata.buildNumber,
+    script.script,
+    newBuildVM.privateKey, function(err) {
+      if (err) {
+        throw new Error(err);
+      } else {
+        return Q.ninvoke(newBuildVM, 'build', script.script)
+          .then(function() {
+            return script.metadata;
+          })
+          .catch(function(error) {
+            script.metadata.error = error;
+            return script.metadata;
+          });
+    }
+  });
 };
 
 // returns a promise
@@ -57,7 +67,6 @@ Build.prototype.doBuildsPromise = function() {
   return Q.ninvoke(this.datastore, 'getNextBuildNumber')
   .then(function(buildId) {
     me.buildId = buildId;
-    console.log('BUILDID: ' + buildId);
     return Q.ninvoke(me.createScript, 'getScripts', buildId);
   })
   .then(function(scripts) {
@@ -66,8 +75,6 @@ Build.prototype.doBuildsPromise = function() {
     }));
   })
   .then(function(results) {
-    console.log('save results for ' + me.datastore.buildId);
-    console.log(results);
     return Q.ninvoke(
         me.datastore,
         'saveInitialData',
