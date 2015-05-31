@@ -6,19 +6,28 @@ var Filestore = require('sivart-data/Filestore');
 var Util = require('sivart-data/Util');
 var Instance = require('sivart-GCE/Instance');
 
-function createInstance(script, cb) {
+function createInstance(filestore, buildId, buildNumber, script) {
   var newBuildVM = Instance.Factory('slave');
 
-  // Stash instance name
-  newBuildVM.build(script, function(err, ip) {
-    var ret = {
+  return Q.ninvoke(filestore, 'getBranch', buildId)
+  .then(function(branch) {
+    return filestore.saveScriptAndPK( // this will overwrite the old ones
+      branch,
+      buildId,
+      buildNumber,
+      script,
+      newBuildVM.privateKey);
+  })
+  .then(function() {
+    return Q.ninvoke(newBuildVM, 'build', script);
+  })
+  .then(function(ip) {
+    return {
       ip: ip,
       instanceName: newBuildVM.instanceName,
       state: 'running',
-      created: new Date().getTime(),
-      privateKey: new Buffer(newBuildVM.privateKey)
+      created: new Date().getTime()
     };
-    cb(err, ret);
   });
 }
 
@@ -43,15 +52,15 @@ function RedoOneRun(repoName, buildId, buildNumber, cb) {
               cb(drferr);
             } else {
               // Then create the VM
-              createInstance(script.toString(), function(cierr, scriptMetadata) {
-                if (cierr) {
-                  cb(cierr);
-                } else {
+              createInstance(filestore, buildId, buildNumber, script.toString())
+              .then(function(scriptMetadata) {
                   // Finally update the run metadata (again)
                   // This will set state to 'running' again AND set the instanceName which we now have
                   //  which we did not want to wait for initially
-                  datastore.updateRunState(buildId, buildNumber, scriptMetadata, cb);
-                }
+                  return Q.ninvoke(datastore, 'updateRunState', buildId, buildNumber, scriptMetadata);
+              })
+              .catch(function(err) {
+                cb(err);
               });
             }
           });
