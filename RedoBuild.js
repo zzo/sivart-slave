@@ -31,16 +31,16 @@ function RedoOneRun(repoName, buildId, buildNumber, cb) {
     if (urserr) {
       cb(urserr);
     } else {
-      // Then blow away all log files
       var filestore = new Filestore(repoName);
-      filestore.deleteRunFiles(buildId, buildNumber, function(drferr) {
-        if (drferr) {
-          cb(drferr);
+      // Then get the startup script for this instance
+      filestore.getStartupScript(buildId, buildNumber, function(gsserr, script) {
+        if (gsserr) {
+          cb(gsserr);
         } else {
-          // Then get the startup script for this instance
-          filestore.getStartupScript(buildId, buildNumber, function(err, script) {
-            if (err) {
-              cb(err);
+          // Then blow away all log files
+          filestore.deleteRunFiles(buildId, buildNumber, function(drferr) {
+            if (drferr) {
+              cb(drferr);
             } else {
               // Then create the VM
               createInstance(script.toString(), function(cierr, scriptMetadata) {
