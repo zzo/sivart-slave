@@ -18,54 +18,13 @@ function Build(args, rawBuildRequest) {
   this.rawBuildRequest = rawBuildRequest;
 }
 
-// Take a startup script and create a VM for it
-Build.prototype.createInstance = function(script, cb) {
-  var newBuildVM = Instance.Factory('slave');
-
-  // Stash instance name
-  script.metadata.instanceName = newBuildVM.instanceName;
-  newBuildVM.build(script.script, function(err) {
-    script.metadata.created = new Date().getTime();
-    script.metadata.state = 'running';
-    script.metadata.script = new Buffer(script.script, 'utf8');
-    script.metadata.privateKey = new Buffer(newBuildVM.privateKey);
-    cb(err, script.metadata);
-  });
-};
-
 Build.prototype.createInstancePromise = function(script) {
   var me = this;
   var newBuildVM = Instance.Factory('slave');
 
   // Stash run metadata
-  script.metadata.instanceName = newBuildVM.instanceName;
   script.metadata.created = new Date().getTime();
   script.metadata.state = 'running';
-  console.log('create instance promise');
-  /*
-  return this.filestore.saveStartupScript(
-    script.metadata.branch,
-    script.metadata.buildId,
-    script.metadata.buildNumber,
-    script.script)
-  .then(function() {
-    return me.filestore.savePrivateKey(
-      script.metadata.branch,
-      script.metadata.buildId,
-      script.metadata.buildNumber,
-      newBuildVM.privateKey);
-  })
-  .then(function() {
-    return Q.ninvoke(newBuildVM, 'build', script.script)
-      .then(function() {
-        return script.metadata;
-      })
-      .catch(function(error) {
-        script.metadata.error = error;
-        return script.metadata;
-      });
-  });
-  */
   return this.filestore.saveScriptAndPK(
     script.metadata.branch,
     script.metadata.buildId,
@@ -74,7 +33,8 @@ Build.prototype.createInstancePromise = function(script) {
     newBuildVM.privateKey)
   .then(function() {
     return Q.ninvoke(newBuildVM, 'build', script.script)
-      .then(function() {
+      .then(function(ip) {
+        script.metadata.ip = ip;
         return script.metadata;
       })
       .catch(function(error) {
@@ -98,7 +58,6 @@ Build.prototype.doBuildsPromise = function() {
     }));
   })
   .then(function(results) {
-    console.log('saving results', results);
     return Q.ninvoke(
         me.datastore,
         'saveInitialData',
