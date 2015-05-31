@@ -10,8 +10,9 @@ function createInstance(script, cb) {
   var newBuildVM = Instance.Factory('slave');
 
   // Stash instance name
-  newBuildVM.build(script, function(err) {
+  newBuildVM.build(script, function(err, ip) {
     var ret = {
+      ip: ip,
       instanceName: newBuildVM.instanceName,
       state: 'running',
       created: new Date().getTime(),
@@ -37,12 +38,12 @@ function RedoOneRun(repoName, buildId, buildNumber, cb) {
           cb(drferr);
         } else {
           // Then get the startup script for this instance
-          datastore.getStartupScript(buildId, buildNumber, function(err, script) {
+          filestore.getStartupScript(buildId, buildNumber, function(err, script) {
             if (err) {
               cb(err);
             } else {
               // Then create the VM
-              createInstance(script, function(cierr, scriptMetadata) {
+              createInstance(script.toString(), function(cierr, scriptMetadata) {
                 if (cierr) {
                   cb(cierr);
                 } else {

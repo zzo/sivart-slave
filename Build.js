@@ -25,6 +25,7 @@ Build.prototype.createInstancePromise = function(script) {
   // Stash run metadata
   script.metadata.created = new Date().getTime();
   script.metadata.state = 'running';
+  script.metadata.instanceName = newBuildVM.instanceName;
   return this.filestore.saveScriptAndPK(
     script.metadata.branch,
     script.metadata.buildId,
