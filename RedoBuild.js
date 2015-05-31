@@ -12,7 +12,7 @@ function createInstance(filestore, buildId, buildNumber, script) {
   return Q.ninvoke(filestore, 'getBranch', buildId)
   .then(function(branch) {
     return filestore.saveScriptAndPK( // this will overwrite the old ones
-      branch,
+      branch[0],
       buildId,
       buildNumber,
       script,
