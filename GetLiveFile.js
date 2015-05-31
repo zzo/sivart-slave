@@ -21,7 +21,7 @@ GetLiveFile.prototype.fetch = function(cb) {
     if (err) {
       cb(err);
     } else {
-      me.datastore.getRun(function(grerr, run) {
+      me.datastore.getRun(me.buildId, me.buildNumber, function(grerr, run) {
         if (grerr) {
           cb(grerr);
         } else {
