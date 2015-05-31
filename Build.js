@@ -34,30 +34,53 @@ Build.prototype.createInstance = function(script, cb) {
 };
 
 Build.prototype.createInstancePromise = function(script) {
+  var me = this;
   var newBuildVM = Instance.Factory('slave');
 
   // Stash run metadata
   script.metadata.instanceName = newBuildVM.instanceName;
   script.metadata.created = new Date().getTime();
   script.metadata.state = 'running';
-  this.filestore.saveScriptAndPK(
+  console.log('create instance promise');
+  /*
+  return this.filestore.saveStartupScript(
+    script.metadata.branch,
+    script.metadata.buildId,
+    script.metadata.buildNumber,
+    script.script)
+  .then(function() {
+    return me.filestore.savePrivateKey(
+      script.metadata.branch,
+      script.metadata.buildId,
+      script.metadata.buildNumber,
+      newBuildVM.privateKey);
+  })
+  .then(function() {
+    return Q.ninvoke(newBuildVM, 'build', script.script)
+      .then(function() {
+        return script.metadata;
+      })
+      .catch(function(error) {
+        script.metadata.error = error;
+        return script.metadata;
+      });
+  });
+  */
+  return this.filestore.saveScriptAndPK(
     script.metadata.branch,
     script.metadata.buildId,
     script.metadata.buildNumber,
     script.script,
-    newBuildVM.privateKey, function(err) {
-      if (err) {
-        throw new Error(err);
-      } else {
-        return Q.ninvoke(newBuildVM, 'build', script.script)
-          .then(function() {
-            return script.metadata;
-          })
-          .catch(function(error) {
-            script.metadata.error = error;
-            return script.metadata;
-          });
-    }
+    newBuildVM.privateKey)
+  .then(function() {
+    return Q.ninvoke(newBuildVM, 'build', script.script)
+      .then(function() {
+        return script.metadata;
+      })
+      .catch(function(error) {
+        script.metadata.error = error;
+        return script.metadata;
+      });
   });
 };
 
@@ -75,6 +98,7 @@ Build.prototype.doBuildsPromise = function() {
     }));
   })
   .then(function(results) {
+    console.log('saving results', results);
     return Q.ninvoke(
         me.datastore,
         'saveInitialData',
@@ -91,82 +115,6 @@ Build.prototype.doBuildsPromise = function() {
         }
     );
   });
-};
-
-Build.prototype.doBuilds = function(cb) {
-  var me = this;
-  Q.ninvoke(this.datastore, 'getNextBuildNumber')
-    .then(function(buildId) {
-      Q.ninvoke(me.createScript, 'getScripts', buildId)
-        .then(function(scripts) {
-          Q.allSettled(scripts.map(function(script) {
-              return Q.ninvoke(me, 'createInstance', script);
-          }))
-          .then(function(results) {
-            var runs =
-              results
-                .map(function(val) {
-                  if (val.state === 'fulfilled') {
-                    return val.value;
-                  } else {
-                    var ret = val.value;
-                    ret.error = val.reason;
-                    return ret;
-                  }
-                });
-
-            var successes =
-              results
-                .filter(function(resp) {
-                  return resp.state === 'fulfilled';
-                })
-                .sort(function(a, b) {
-                  return a.value.buildNumber - b.value.buildNumber;
-                })
-                .map(function(val) {
-                  return val.value;
-                });
-
-            var failures =
-              results
-                .filter(function(resp) {
-                  return resp.state === 'rejected';
-                })
-                .map(function(val) {
-                  return val.reason;
-                });
-
-            Q.ninvoke(
-                me.datastore,
-                'saveInitialData',
-                runs,
-                me.rawBuildRequest,
-                {
-                  kind: me.eventName,
-                  created: new Date().getTime(),
-                  state: 'running',
-                  id: buildId,
-                  repoName: me.repoName,
-                  branch: me.branch
-                }
-            ).then(
-              function() {
-                if (failures.length) {
-                  cb(failures, successes);
-                } else {
-                  cb(null, successes);
-                }
-              }
-            )
-            .catch(function(sID) {
-              cb(sID);
-            });
-          });
-        });
-    })
-    .catch(function(err) {
-      cb(err);
-    });
 };
 
 module.exports = Build;
