@@ -1,13 +1,14 @@
 'use strict';
 
 var Datastore = require('sivart-data/Datastore');
-var Instance = require('sivart-GCE/Instance');
+var Filestore = require('sivart-data/Filestore');
 var client = require('scp2');
 var path = require('path');
 var fs = require('fs');
 
 function GetLiveFile(repoName, buildId, buildNumber, filename) {
   this.datastore = new Datastore(repoName);
+  this.filestore = new Filestore(repoName);
   this.filename = filename;
   this.buildId = buildId;
   this.buildNumber = buildNumber;
@@ -16,23 +17,22 @@ function GetLiveFile(repoName, buildId, buildNumber, filename) {
 // Get private key and scp file over
 GetLiveFile.prototype.fetch = function(cb) {
   var me = this;
-  this.datastore.getPrivateKey(this.buildId, this.buildNumber, function(err, key, run) {
+  this.filestore.getPrivateKey(this.buildId, this.buildNumber, function(err, key) {
     if (err) {
       cb(err);
     } else {
-      var instance = Instance.Factory('slave', run.instanceName);
-      instance.getIP(function(gierr, ip) {
-        if (gierr) {
-          cb(gierr);
+      me.datastore.getRun(function(grerr, run) {
+        if (grerr) {
+          cb(grerr);
         } else {
           // ok we have the ip address & private key - grab the file...
           // first cook up a dummy filename
           var localFile = path.join('/tmp', String(new Date().getTime()));
           client.scp({
-            host: ip,
+            host: run.ip,
             username: 'sivart',
             path: me.filename,
-            privateKey: key
+            privateKey: key.toString()
           }, localFile, function(scperr) {
             if (scperr) {
               cb(scperr);
