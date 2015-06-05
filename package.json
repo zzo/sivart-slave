@@ -13,7 +13,8 @@
     "q": "^1.4.1",
     "scp2": "^0.2.2",
     "sivart-GCE": "zzo/sivart-GCE",
-    "sivart-data": "zzo/sivart-data"
+    "sivart-data": "zzo/sivart-data",
+    "ursa": "^0.8.5"
   },
   "license": "Apache-2.0",
   "scripts": {
