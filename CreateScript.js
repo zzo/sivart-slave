@@ -154,12 +154,21 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber, 
   // Global env variables
   if (yml.env && yml.env.global) {
     var globals = yml.env.global.map(function(glob) {
-      if (glob.match(/^xci_secure=/)) {
-        // Decrypt me!
-        var crypted = glob.replace(/^xci_secure=/, '');
-        return printf('decrypt "%s"', crypted);
-      } else {
-        return printf('export %s', glob);
+      if (typeof glob === 'object') {
+        if (glob.xci_secure) {
+          return printf('decrypt "%s"', glob.xci_secure);
+        } else {
+          var keys = Object.keys(glob);
+          return printf('export %s=%s', keys[0], glob[keys[0]]);
+        }
+      } else { // a string hopefully
+        if (glob.match(/^xci_secure=/)) {
+          // Decrypt me!
+          var crypted = glob.replace(/^xci_secure=/, '');
+          return printf('decrypt "%s"', crypted);
+        } else {
+          return printf('export %s', glob);
+        }
       }
     });
     lines = this.addLines('Globals', globals, lines, 'errored');
@@ -264,6 +273,8 @@ CreateScript.prototype.createScripts = function(buildId, cb) {
             buildNumber++;
             // start with a new templateLines each time
             var lines;
+            // TODO(trostler): need to handle MATRIX being an Object instead of a string
+            //    like global vars
             if (matrix.match(/^xci_secure=/)) {
               var crypted = matrix.replace(/^xci_secure=/, '');
               lines = me.addLines('Matrix', [
