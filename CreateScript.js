@@ -102,7 +102,7 @@ CreateScript.prototype.addNodeJS = function(lines, nodejs) {
   return lines;
 };
 
-CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber, cb) {
+CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) {
   lines.push('startTimestamp=`date +"%s"`');
 
   lines = this.addLines('Travis Emulation', [
@@ -229,8 +229,8 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber, 
   if (!this.keepVM) {
     lines = this.addLines('Delete VM', ['deleteInstance'], lines, 'system');
   }
-  cb(null, lines);
-//  return lines;
+
+  return lines;
 };
 
 function skipThisBuild(thisBuildMatrix, nodeJS, ymlMatrix) {
