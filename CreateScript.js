@@ -119,7 +119,7 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber, 
     'export TRAVIS_BUILD_ID=`hostname`', // internal id
     'export TRAVIS_JOB_ID=`hostname`', // interval id
     'export TRAVIS_OS_NAME=linux',
-    'export TRAVIS_SECURE_ENV_VARS=false',
+    'export TRAVIS_SECURE_ENV_VARS=true',
     printf('export SIVART_BUILD_NUMBER=%s', buildNumber),
     printf('export SIVART_BUILD_ID=%s', this.buildId)
   ], lines, 'system');
@@ -263,10 +263,19 @@ CreateScript.prototype.createScripts = function(buildId, cb) {
             var ignoreThis = yml.matrix && ignoreThisBuild(matrix, nodeJS, yml.matrix);
             buildNumber++;
             // start with a new templateLines each time
-            var lines = me.addLines('Matrix', [
-              'export ' + matrix,
-              printf('echo %s > $SIVART_BASE_LOG_DIR/matrix', matrix)
-              ], getTemplateLines());
+            var lines;
+            if (matrix.match(/^xci_secure=/)) {
+              var crypted = matrix.replace(/^xci_secure=/, '');
+              lines = me.addLines('Matrix', [
+                printf('decrypt "%s"', crypted),
+                'echo xci_secure > $SIVART_BASE_LOG_DIR/matrix'
+                ], getTemplateLines());
+            } else {
+              lines = me.addLines('Matrix', [
+                'export ' + matrix,
+                printf('echo %s > $SIVART_BASE_LOG_DIR/matrix', matrix)
+                ], getTemplateLines());
+            }
             lines = me.addNodeJS(lines, nodeJS);
             var metadata = me.getMetadata(nodeJS, matrix, buildNumber, ignoreThis);
             scripts[buildNumber] = {
