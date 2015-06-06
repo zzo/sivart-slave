@@ -102,7 +102,7 @@ CreateScript.prototype.addNodeJS = function(lines, nodejs) {
   return lines;
 };
 
-CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) {
+CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber, cb) {
   lines.push('startTimestamp=`date +"%s"`');
 
   lines = this.addLines('Travis Emulation', [
@@ -142,10 +142,6 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
     ], lines, 'errored');
   }
 
-  lines = this.addLines('Save Environment', [
-    'env | tee $SIVART_BASE_LOG_DIR/environment.env'
-  ], lines, 'system');
-
   lines = this.addLines('Update state to building', [
     'updateState "building"'
   ], lines, 'system');
@@ -158,10 +154,20 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
   // Global env variables
   if (yml.env && yml.env.global) {
     var globals = yml.env.global.map(function(glob) {
-      return printf('export %s', glob);
+      if (glob.match(/^xci_secure=/)) {
+        // Decrypt me!
+        var crypted = glob.replace(/^xci_secure=/, '');
+        return printf('decrypt "%s"', crypted);
+      } else {
+        return printf('export %s', glob);
+      }
     });
     lines = this.addLines('Globals', globals, lines, 'errored');
   }
+
+  lines = this.addLines('Save Environment', [
+    'env | tee $SIVART_BASE_LOG_DIR/environment.env'
+  ], lines, 'system');
 
   // Get Cache
   if (yml.cache && yml.cache.directories) {
@@ -214,7 +220,8 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
   if (!this.keepVM) {
     lines = this.addLines('Delete VM', ['deleteInstance'], lines, 'system');
   }
-  return lines;
+  cb(null, lines);
+//  return lines;
 };
 
 function skipThisBuild(thisBuildMatrix, nodeJS, ymlMatrix) {

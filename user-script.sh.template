@@ -36,6 +36,10 @@ function deleteInstance() {
   nodejs $SIVART_SLAVE/deleteInstance.js
 }
 
+function decrypt() {
+  export `nodejs $SIVART_SLAVE/decrypt.js "$1"`
+}
+
 function runCommand() {
   logf=$SIVART_BASE_LOG_DIR/`date +"%s.%N"`.log
   echo "$TOKEN--COMMAND START: $1: $logf: `date`" | tee $logf
