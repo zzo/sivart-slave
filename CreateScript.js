@@ -95,7 +95,7 @@ CreateScript.prototype.addNodeJS = function(lines, nodejs) {
   lines = this.addLines('NVM', [
     'source ~/.nvm/nvm.sh',
     printf('export TRAVIS_NODE_VERSION=%s', nodejs),
-    printf('nvm use %s', nodejs),
+    printf('nvm install %s', nodejs),
     'node -v > $SIVART_BASE_LOG_DIR/nodejs.version',
     'echo "Using NodeJS version `node -v`"'
     ], lines, 'errored');
@@ -190,6 +190,8 @@ CreateScript.prototype.addGlobals = function(lines, yml, metadata, buildNumber) 
 
   if (yml.install) {
     lines = this.addLines('Install', yml.install, lines, 'errored');
+  } else {
+    lines = this.addLines('Install', ['npm install'], lines, 'errored');
   }
 
   if (yml.after_install) {
