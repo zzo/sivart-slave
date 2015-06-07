@@ -274,21 +274,12 @@ CreateScript.prototype.createScripts = function(buildId, cb) {
             var ignoreThis = yml.matrix && ignoreThisBuild(matrix, nodeJS, yml.matrix);
             buildNumber++;
             // start with a new templateLines each time
-            var lines;
             // TODO(trostler): need to handle MATRIX being an Object instead of a string
             //    like global vars
-            if (matrix.match(/^xci_secure=/)) {
-              var crypted = matrix.replace(/^xci_secure=/, '');
-              lines = me.addLines('Matrix', [
-                printf('decrypt "%s"', crypted),
-                'echo xci_secure > $SIVART_BASE_LOG_DIR/matrix'
-                ], getTemplateLines());
-            } else {
-              lines = me.addLines('Matrix', [
-                'export ' + matrix,
-                printf('echo %s > $SIVART_BASE_LOG_DIR/matrix', matrix)
-                ], getTemplateLines());
-            }
+            var lines = me.addLines('Matrix', [
+              'export ' + matrix,
+              printf('echo %s > $SIVART_BASE_LOG_DIR/matrix', matrix)
+            ], getTemplateLines());
             lines = me.addNodeJS(lines, nodeJS);
             var metadata = me.getMetadata(nodeJS, matrix, buildNumber, ignoreThis);
             scripts[buildNumber] = {
