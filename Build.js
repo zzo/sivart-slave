@@ -22,16 +22,21 @@ Build.prototype.createInstancePromise = function(script) {
   var me = this;
   var newBuildVM = Instance.Factory('slave');
 
+  // Persist this to filestore not datastore
+  var yml = script.metadata.yml;
+  delete script.metadata.yml;
+
   // Stash run metadata
   script.metadata.created = new Date().getTime();
   script.metadata.state = 'running';
   script.metadata.instanceName = newBuildVM.instanceName;
-  return this.filestore.saveScriptAndPK(
+  return this.filestore.saveScriptAndPKAndYML(
     script.metadata.branch,
     script.metadata.buildId,
     script.metadata.buildNumber,
     script.script,
-    newBuildVM.privateKey)
+    newBuildVM.privateKey,
+    yml)
   .then(function() {
     return Q.ninvoke(newBuildVM, 'build', script.script)
       .then(function(ip) {

@@ -4,6 +4,7 @@ var fs = require('fs');
 var path = require('path');
 var template = fs.readFileSync(path.join(__dirname, 'user-script.sh.template'), 'utf8');
 var printf = require('util').format;
+var yaml = require('js-yaml');
 
 function getTemplateLines() {
   return template.split('\n');
@@ -30,8 +31,7 @@ function CreateScript(args) {
 
 CreateScript.prototype.getYML = function(cb) {
   var http = require('https');
-  var yaml = require('js-yaml');
-  var defaultYML = { script: [ 'npm install', 'npm test' ], node_js: [ '0.10' ] };
+  var defaultYML = { script: [ 'npm test' ], node_js: [ '0.10' ] };
   if (!this.yamlURL) {
     return cb(null, defaultYML);
   }
@@ -281,7 +281,7 @@ CreateScript.prototype.createScripts = function(buildId, cb) {
               printf('echo %s > $SIVART_BASE_LOG_DIR/matrix', matrix)
             ], getTemplateLines());
             lines = me.addNodeJS(lines, nodeJS);
-            var metadata = me.getMetadata(nodeJS, matrix, buildNumber, ignoreThis);
+            var metadata = me.getMetadata(nodeJS, matrix, buildNumber, ignoreThis, yml);
             scripts[buildNumber] = {
               script: me.addGlobals(lines, yml, metadata, buildNumber),
               metadata: metadata
@@ -293,7 +293,7 @@ CreateScript.prototype.createScripts = function(buildId, cb) {
       yml.node_js.forEach(function(nodeJS) {
         buildNumber++;
         var lines = me.addNodeJS(getTemplateLines(), nodeJS);
-        var metadata = me.getMetadata(nodeJS, null, buildNumber);
+        var metadata = me.getMetadata(nodeJS, null, buildNumber, false, yml);
         scripts[buildNumber] = {
           script: me.addGlobals(lines, yml, metadata, buildNumber),
           metadata: metadata
@@ -304,7 +304,7 @@ CreateScript.prototype.createScripts = function(buildId, cb) {
   });
 };
 
-CreateScript.prototype.getMetadata = function(nodeJS, matrix, buildNumber, ignoreThis) {
+CreateScript.prototype.getMetadata = function(nodeJS, matrix, buildNumber, ignoreThis, yml) {
   return {
     name: this.repoName,
     commit: this.commit,
@@ -316,6 +316,7 @@ CreateScript.prototype.getMetadata = function(nodeJS, matrix, buildNumber, ignor
     buildId: this.buildId,
     repoName: this.repoName,
     buildNumber: buildNumber,
+    yml: yaml.safeDump(yml, { skipInvalid: true }),
     ignoreFailure: ignoreThis
   };
 };
